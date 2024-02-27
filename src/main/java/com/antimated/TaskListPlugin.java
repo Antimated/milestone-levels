@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.Quest;
 import net.runelite.api.Skill;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.OverheadTextChanged;
@@ -40,14 +41,12 @@ public class TaskListPlugin extends Plugin
 	protected void startUp() throws Exception
 	{
 		eventBus.register(notifications);
-		log.info("Example started!");
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
 		eventBus.unregister(notifications);
-		log.info("Example stopped!");
 	}
 
 	@Subscribe
@@ -64,7 +63,8 @@ public class TaskListPlugin extends Plugin
 	{
 		if (e.getActor().equals(client.getLocalPlayer()))
 		{
-			notifications.addNotification("Test", e.getOverheadText(), 0x00ff00);
+			// Just as a test so we can add a few notifications to the queue with different text.
+			notifications.addNotification("<col=ff0000>Test</col> testers <img=1>", e.getOverheadText(), 0x00ff00);
 		}
 	}
 
@@ -90,6 +90,8 @@ public class TaskListPlugin extends Plugin
 		if (currentLevel % 10 == 0 || currentLevel == 99)
 		{
 			notifications.addNotification("Task completed", "Reach level " + currentLevel + " in " + skill.getName());
+
+			// TODO: Add notifications when all skills are a min of 10, 20, 30, 40, 50, 60, 70, 80, 90 and 99
 		}
 	}
 

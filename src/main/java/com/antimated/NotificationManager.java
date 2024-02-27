@@ -76,6 +76,8 @@ public class NotificationManager
 		clientThread.invokeLater(() -> {
 			Widget notificationWidget = client.getWidget(INTERFACE_ID, 1);
 
+			assert notificationWidget != null;
+
 			if (notificationWidget.getWidth() > 0)
 			{
 				return false;
