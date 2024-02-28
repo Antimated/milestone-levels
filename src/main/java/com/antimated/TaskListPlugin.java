@@ -20,7 +20,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 
 @Slf4j
-@PluginDescriptor(name = "Example")
+@PluginDescriptor(name = "Task List")
 public class TaskListPlugin extends Plugin
 {
 	private final Map<Skill, Integer> skillLevel = new HashMap<>();
