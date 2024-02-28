@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
+import net.runelite.api.GameState;
 import net.runelite.api.WidgetNode;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
@@ -68,14 +69,13 @@ public class NotificationManager
 		isProcessingNotification = true;
 
 		WidgetNode notificationNode = client.openInterface(COMPONENT_ID, INTERFACE_ID, WidgetModalMode.MODAL_CLICKTHROUGH);
+		Widget notificationWidget = client.getWidget(INTERFACE_ID, 1);
 
 		// Runs a client script to set the initial title, text and color values of the notifications
 		client.runScript(SCRIPT_ID, notification.getTitle(), notification.getText(), notification.getColor());
 
 		// Trigger invokeLater on the clientThread and check if the notification is fully closed before closing it
 		clientThread.invokeLater(() -> {
-			Widget notificationWidget = client.getWidget(INTERFACE_ID, 1);
-
 			assert notificationWidget != null;
 
 			if (notificationWidget.getWidth() > 0)
@@ -86,6 +86,7 @@ public class NotificationManager
 			// Close the interface
 			client.closeInterface(notificationNode, true);
 
+			// set notification processing state to false
 			isProcessingNotification = false;
 
 			return true;
