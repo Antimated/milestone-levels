@@ -6,12 +6,9 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.GameState;
 import net.runelite.api.Skill;
 import net.runelite.api.events.CommandExecuted;
-import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.StatChanged;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
@@ -39,28 +36,20 @@ public class TaskListPlugin extends Plugin
 	@Named("developerMode")
 	boolean developerMode;
 
-
 	private final Map<Skill, Integer> skillLevel = new HashMap<>();
 
 	@Override
 	protected void startUp() throws Exception
 	{
 		eventBus.register(notifications);
+		notifications.startUp();
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
 		eventBus.unregister(notifications);
-	}
-
-	@Subscribe
-	public void onGameStateChanged(GameStateChanged gameStateChanged)
-	{
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
-		{
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
-		}
+		notifications.shutDown();
 	}
 
 	@Subscribe
@@ -98,19 +87,6 @@ public class TaskListPlugin extends Plugin
 			for (int i = 0; i < 500; i++) {
 				notifications.addNotification("Test notification", "Test notification number " + i);
 			}
-
-//			String text = Strings.join(commandExecuted.getArguments(), " ");
-//
-//			if (text.isEmpty())
-//			{
-//				//resetClue(true);
-//			}
-//			else
-//			{
-//				ClueScroll clueScroll = findClueScroll(text);
-//				log.debug("Found clue scroll for '{}': {}", text, clueScroll);
-//				updateClue(clueScroll);
-//			}
 		}
 	}
 

@@ -6,7 +6,6 @@ import javax.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.GameState;
 import net.runelite.api.WidgetNode;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
@@ -28,6 +27,9 @@ public class NotificationManager
 	@Getter
 	private boolean isProcessingNotification = false;
 
+	@Getter
+	private boolean canProcessNotifications = false;
+
 	@Inject
 	private Client client;
 
@@ -37,9 +39,23 @@ public class NotificationManager
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
-		processNotifications();
+		if (canProcessNotifications) {
+			processNotifications();
+		}
 	}
 
+	public void startUp()
+	{
+		log.debug("startUp");
+		canProcessNotifications = true;
+	}
+
+	public void shutDown()
+	{
+		log.debug("shutDown");
+		canProcessNotifications = false;
+		notifications.clear();
+	}
 	public void addNotification(String title, String text)
 	{
 		addNotification(title, text, -1);
@@ -65,6 +81,7 @@ public class NotificationManager
 
 	private void displayNotification(NotificationItem notification)
 	{
+		log.debug("Displaying notification interface" + notification.getText());
 		isProcessingNotification = true;
 
 		WidgetNode notificationNode = client.openInterface(COMPONENT_ID, INTERFACE_ID, WidgetModalMode.MODAL_CLICKTHROUGH);
@@ -87,6 +104,8 @@ public class NotificationManager
 
 			// set notification processing state to false
 			isProcessingNotification = false;
+
+			log.debug("Closing notification interface " + notification.getText());
 
 			return true;
 		});
