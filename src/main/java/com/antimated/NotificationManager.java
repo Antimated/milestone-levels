@@ -49,7 +49,6 @@ public class NotificationManager
 	{
 		NotificationItem notification = new NotificationItem(title, text, color);
 		notifications.offer(notification);
-		processNotifications();
 	}
 
 	private void processNotifications()
