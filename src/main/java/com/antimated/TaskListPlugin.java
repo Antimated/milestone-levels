@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
+import joptsimple.internal.Strings;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Skill;
@@ -73,7 +74,7 @@ public class TaskListPlugin extends Plugin
 		// Only notify when we reach levels 10, 20, 30, 40, 50, 60, 70, 80, 90 and 99
 		if (currentLevel % 10 == 0 || currentLevel == 99)
 		{
-			notifications.addNotification("Task completed", "Reach level " + currentLevel + " in " + skill.getName());
+			notifications.addNotification("Milestone level", "Gained level " + currentLevel + " in " + skill.getName() + "!");
 
 			// TODO: Add notifications when all skills are a min of 10, 20, 30, 40, 50, 60, 70, 80, 90 and 99
 		}
@@ -84,9 +85,22 @@ public class TaskListPlugin extends Plugin
 	{
 		if (developerMode && commandExecuted.getCommand().equals("level"))
 		{
-			for (int i = 0; i < 500; i++) {
-				notifications.addNotification("Test notification", "Test notification number " + i);
+			String text = Strings.join(commandExecuted.getArguments(), " ");
+
+			if (!text.isEmpty())
+			{
+				int currentLevel = Integer.parseInt(text);
+
+				if (currentLevel % 10 == 0 || currentLevel == 99)
+				{
+					notifications.addNotification("Milestone level", "Gained level " + currentLevel + " in " + Skill.AGILITY.getName() + "!");
+				}
+				else
+				{
+					log.debug("Invalid level given");
+				}
 			}
+
 		}
 	}
 

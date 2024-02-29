@@ -24,6 +24,7 @@ public class NotificationManager
 	private static final int INTERFACE_ID = 660;
 
 	private final LinkedList<NotificationItem> notifications = new LinkedList<>();
+
 	@Getter
 	private boolean isProcessingNotification = false;
 
@@ -39,7 +40,8 @@ public class NotificationManager
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
-		if (canProcessNotifications) {
+		if (canProcessNotifications)
+		{
 			processNotifications();
 		}
 	}
@@ -56,6 +58,7 @@ public class NotificationManager
 		canProcessNotifications = false;
 		notifications.clear();
 	}
+
 	public void addNotification(String title, String text)
 	{
 		addNotification(title, text, -1);
