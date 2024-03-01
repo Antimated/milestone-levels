@@ -1,8 +1,10 @@
 package com.antimated;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 import joptsimple.internal.Strings;
@@ -39,6 +41,18 @@ public class TaskListPlugin extends Plugin
 
 	private final Map<Skill, Integer> skillLevel = new HashMap<>();
 
+	private static final Set<Integer> LAST_MAN_STANDING_DESERTED_ISLAND_REGION = ImmutableSet.of(13658, 13659, 13914, 13915, 13916);
+
+	private static final Set<Integer> LAST_MAN_STANDING_WILD_VARROCK_REGION = ImmutableSet.of(13918, 13919, 13920, 14174, 14175, 14176, 14430, 14431, 14432);
+
+	private static final Set<Integer> LAST_MAN_STANDING_REGION = ImmutableSet.<Integer>builder().addAll(LAST_MAN_STANDING_DESERTED_ISLAND_REGION).addAll(LAST_MAN_STANDING_WILD_VARROCK_REGION).build();
+
+	@Provides
+	TaskListConfig provideConfig(ConfigManager configManager)
+	{
+		return configManager.getConfig(TaskListConfig.class);
+	}
+
 	@Override
 	protected void startUp() throws Exception
 	{
@@ -56,6 +70,11 @@ public class TaskListPlugin extends Plugin
 	@Subscribe
 	public void onStatChanged(StatChanged statChanged)
 	{
+		// Don't trigger within last man standing as you would get a boatload of levels
+		if (isWithinMapRegions(LAST_MAN_STANDING_REGION)) {
+			return;
+		}
+
 		onLevelUp(statChanged);
 	}
 
@@ -80,11 +99,31 @@ public class TaskListPlugin extends Plugin
 		}
 	}
 
+	private boolean isWithinMapRegions(Set<Integer> definedMapRegions)
+	{
+		final int[] mapRegions = client.getMapRegions();
+
+		for (int region : mapRegions)
+		{
+			if (definedMapRegions.contains(region))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted commandExecuted)
 	{
 		if (developerMode && commandExecuted.getCommand().equals("level"))
 		{
+			// Don't trigger within last man standing as you would get a boatload of levels
+			if (isWithinMapRegions(LAST_MAN_STANDING_REGION)) {
+				return;
+			}
+
 			String text = Strings.join(commandExecuted.getArguments(), " ");
 
 			if (!text.isEmpty())
@@ -102,11 +141,5 @@ public class TaskListPlugin extends Plugin
 			}
 
 		}
-	}
-
-	@Provides
-	TaskListConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(TaskListConfig.class);
 	}
 }
