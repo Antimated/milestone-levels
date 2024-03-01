@@ -1,5 +1,6 @@
 package com.antimated;
 
+import com.antimated.notification.NotificationManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
 import java.util.HashMap;
@@ -21,13 +22,13 @@ import net.runelite.client.plugins.PluginDescriptor;
 
 @Slf4j
 @PluginDescriptor(name = "Task List")
-public class TaskListPlugin extends Plugin
+public class MilestoneLevelsPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private TaskListConfig config;
+	private MilestoneLevelsConfig config;
 
 	@Inject
 	private EventBus eventBus;
@@ -41,16 +42,13 @@ public class TaskListPlugin extends Plugin
 
 	private final Map<Skill, Integer> skillLevel = new HashMap<>();
 
-	private static final Set<Integer> LAST_MAN_STANDING_DESERTED_ISLAND_REGION = ImmutableSet.of(13658, 13659, 13914, 13915, 13916);
-
-	private static final Set<Integer> LAST_MAN_STANDING_WILD_VARROCK_REGION = ImmutableSet.of(13918, 13919, 13920, 14174, 14175, 14176, 14430, 14431, 14432);
-
-	private static final Set<Integer> LAST_MAN_STANDING_REGION = ImmutableSet.<Integer>builder().addAll(LAST_MAN_STANDING_DESERTED_ISLAND_REGION).addAll(LAST_MAN_STANDING_WILD_VARROCK_REGION).build();
+	// Last man standing map regions
+	private static final Set<Integer> LAST_MAN_STANDING_REGIONS = ImmutableSet.of(13658, 13659, 13660, 13914, 13915, 13916, 13918, 13919, 13920, 14174, 14175, 14176, 14430, 14431, 14432);
 
 	@Provides
-	TaskListConfig provideConfig(ConfigManager configManager)
+	MilestoneLevelsConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(TaskListConfig.class);
+		return configManager.getConfig(MilestoneLevelsConfig.class);
 	}
 
 	@Override
@@ -70,21 +68,17 @@ public class TaskListPlugin extends Plugin
 	@Subscribe
 	public void onStatChanged(StatChanged statChanged)
 	{
-		// Don't trigger within last man standing as you would get a boatload of levels
-		if (isWithinMapRegions(LAST_MAN_STANDING_REGION)) {
+		// Ignore Last Man Standing
+		if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
+		{
 			return;
 		}
 
-		onLevelUp(statChanged);
-	}
-
-	public void onLevelUp(StatChanged statChanged)
-	{
 		final Skill skill = statChanged.getSkill();
 		final int currentLevel = statChanged.getLevel();
 		final Integer previousLevel = skillLevel.put(skill, currentLevel);
 
-		// Only process when a previousLevel is logged or if the level hasn't changed.
+		// Previous level has to be set, and the previous level can not be larger or equal to the current level.
 		if (previousLevel == null || previousLevel >= currentLevel)
 		{
 			return;
@@ -99,7 +93,10 @@ public class TaskListPlugin extends Plugin
 		}
 	}
 
-	private boolean isWithinMapRegions(Set<Integer> definedMapRegions)
+	/**
+	 * Is player currently within the provided map regions
+	 */
+	private boolean isPlayerWithinMapRegion(Set<Integer> definedMapRegions)
 	{
 		final int[] mapRegions = client.getMapRegions();
 
@@ -120,7 +117,8 @@ public class TaskListPlugin extends Plugin
 		if (developerMode && commandExecuted.getCommand().equals("level"))
 		{
 			// Don't trigger within last man standing as you would get a boatload of levels
-			if (isWithinMapRegions(LAST_MAN_STANDING_REGION)) {
+			if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
+			{
 				return;
 			}
 
@@ -139,7 +137,6 @@ public class TaskListPlugin extends Plugin
 					log.debug("Invalid level given");
 				}
 			}
-
 		}
 	}
 }

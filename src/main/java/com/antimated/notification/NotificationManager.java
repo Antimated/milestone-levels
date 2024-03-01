@@ -1,4 +1,4 @@
-package com.antimated;
+package com.antimated.notification;
 
 import java.util.LinkedList;
 import javax.inject.Inject;

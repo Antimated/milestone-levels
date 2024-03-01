@@ -4,8 +4,8 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup("taskList")
-public interface TaskListConfig extends Config
+@ConfigGroup("milestoneLevels")
+public interface MilestoneLevelsConfig extends Config
 {
 	@ConfigItem(
 		keyName = "greeting",

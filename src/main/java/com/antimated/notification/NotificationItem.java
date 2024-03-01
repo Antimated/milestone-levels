@@ -1,4 +1,4 @@
-package com.antimated;
+package com.antimated.notification;
 
 public class NotificationItem
 {
