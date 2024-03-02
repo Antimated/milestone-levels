@@ -1,9 +1,11 @@
 package com.antimated;
 
+import java.awt.Color;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.ui.JagexColors;
 
 @ConfigGroup("milestoneLevels")
 public interface MilestoneLevelsConfig extends Config
@@ -37,6 +39,18 @@ public interface MilestoneLevelsConfig extends Config
 	default String notificationText()
 	{
 		return "Gained level $level in $skill!";
+	}
+
+	@ConfigItem(
+		keyName = "notificationColor",
+		name = "Color",
+		description = "Changes the color of the notification title and text.",
+		section = notificationConfig,
+		position = 2
+	)
+	default Color notificationColor()
+	{
+		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
 	}
 
 	@ConfigSection(

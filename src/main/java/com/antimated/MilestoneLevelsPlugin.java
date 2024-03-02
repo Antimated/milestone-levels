@@ -3,6 +3,7 @@ package com.antimated;
 import com.antimated.notifications.NotificationsManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,8 +105,19 @@ public class MilestoneLevelsPlugin extends Plugin
 
 		String title = replaceSkillAndLevel(config.notificationTitle(), skill, level);
 		String text = replaceSkillAndLevel(config.notificationText(), skill, level);
+		int color = getIntValue(config.notificationColor());
 
-		notifications.addNotification(title, text);
+		notifications.addNotification(title, text, color);
+	}
+
+	private int getIntValue(Color color)
+	{
+		int red = color.getRed();
+		int green = color.getGreen();
+		int blue = color.getBlue();
+
+		// Combine RGB values into a single integer
+		return (red << 16) | (green << 8) | blue;
 	}
 
 	/**

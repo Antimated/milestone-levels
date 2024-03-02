@@ -6,12 +6,14 @@ import javax.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
+import net.runelite.api.JagexColor;
 import net.runelite.api.WidgetNode;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetModalMode;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.ui.JagexColors;
 
 @Slf4j
 @Singleton
@@ -42,7 +44,7 @@ public class NotificationsManager
 	{
 		if (canProcessNotifications)
 		{
-			processNotifications();
+			processNotification();
 		}
 	}
 
@@ -68,9 +70,12 @@ public class NotificationsManager
 		notifications.offer(notification);
 	}
 
-	private void processNotifications()
+	/**
+	 * Processes a notification
+	 */
+	private void processNotification()
 	{
-		/// Only process notifications if the queue is not empty AND the queue is not processing any notifications.
+		// Only process notifications if the queue is not empty AND the queue is not processing any notifications.
 		if (!notifications.isEmpty() && !isProcessingNotification)
 		{
 			// Get and remove the first element in the notifications queue.
@@ -81,6 +86,12 @@ public class NotificationsManager
 		}
 	}
 
+	/**
+	 * Display a notification and close it afterwards.
+	 * @param notification NotificationItem
+	 * @throws IllegalStateException
+	 * @throws IllegalArgumentException
+	 */
 	private void displayNotification(NotificationItem notification) throws IllegalStateException, IllegalArgumentException
 	{
 		isProcessingNotification = true;
