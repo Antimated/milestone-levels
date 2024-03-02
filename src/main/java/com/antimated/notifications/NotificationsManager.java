@@ -1,4 +1,4 @@
-package com.antimated.notification;
+package com.antimated.notifications;
 
 import java.util.LinkedList;
 import javax.inject.Inject;
@@ -15,7 +15,7 @@ import net.runelite.client.eventbus.Subscribe;
 
 @Slf4j
 @Singleton
-public class NotificationManager
+public class NotificationsManager
 {
 	private static final int SCRIPT_ID = 3343; // NOTIFICATION_DISPLAY_INIT
 
@@ -48,13 +48,11 @@ public class NotificationManager
 
 	public void startUp()
 	{
-		log.debug("startUp");
 		canProcessNotifications = true;
 	}
 
 	public void shutDown()
 	{
-		log.debug("shutDown");
 		canProcessNotifications = false;
 		notifications.clear();
 	}
@@ -72,9 +70,10 @@ public class NotificationManager
 
 	private void processNotifications()
 	{
+		/// Only process notifications if the queue is not empty AND the queue is not processing any notifications.
 		if (!notifications.isEmpty() && !isProcessingNotification)
 		{
-			// Dequeue the item
+			// Get and remove the first element in the notifications queue.
 			NotificationItem notification = notifications.poll();
 
 			// Display notification
@@ -82,9 +81,8 @@ public class NotificationManager
 		}
 	}
 
-	private void displayNotification(NotificationItem notification)
+	private void displayNotification(NotificationItem notification) throws IllegalStateException, IllegalArgumentException
 	{
-		log.debug("Displaying notification interface" + notification.getText());
 		isProcessingNotification = true;
 
 		WidgetNode notificationNode = client.openInterface(COMPONENT_ID, INTERFACE_ID, WidgetModalMode.MODAL_CLICKTHROUGH);
@@ -93,7 +91,7 @@ public class NotificationManager
 		// Runs a client script to set the initial title, text and color values of the notifications
 		client.runScript(SCRIPT_ID, notification.getTitle(), notification.getText(), notification.getColor());
 
-		// Trigger invokeLater on the clientThread and check if the notification is fully closed before closing it
+		// Only remove notification when widget is fully closed.
 		clientThread.invokeLater(() -> {
 			assert notificationWidget != null;
 
@@ -105,11 +103,10 @@ public class NotificationManager
 			// Close the interface
 			client.closeInterface(notificationNode, true);
 
-			// set notification processing state to false
+			// We can now start processing notifications again.
 			isProcessingNotification = false;
 
-			log.debug("Closing notification interface " + notification.getText());
-
+			// Invoke done
 			return true;
 		});
 	}

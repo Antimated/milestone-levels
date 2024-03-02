@@ -1,6 +1,6 @@
 package com.antimated;
 
-import com.antimated.notification.NotificationManager;
+import com.antimated.notifications.NotificationsManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
 import java.util.HashMap;
@@ -19,9 +19,10 @@ import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.util.Text;
 
 @Slf4j
-@PluginDescriptor(name = "Task List")
+@PluginDescriptor(name = "Milestone levels")
 public class MilestoneLevelsPlugin extends Plugin
 {
 	@Inject
@@ -34,7 +35,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	private EventBus eventBus;
 
 	@Inject
-	private NotificationManager notifications;
+	private NotificationsManager notifications;
 
 	@Inject
 	@Named("developerMode")
@@ -42,7 +43,6 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	private final Map<Skill, Integer> skillLevel = new HashMap<>();
 
-	// Last man standing map regions
 	private static final Set<Integer> LAST_MAN_STANDING_REGIONS = ImmutableSet.of(13658, 13659, 13660, 13914, 13915, 13916, 13918, 13919, 13920, 14174, 14175, 14176, 14430, 14431, 14432);
 
 	@Provides
@@ -84,13 +84,90 @@ public class MilestoneLevelsPlugin extends Plugin
 			return;
 		}
 
-		// Only notify when we reach levels 10, 20, 30, 40, 50, 60, 70, 80, 90 and 99
-		if (currentLevel % 10 == 0 || currentLevel == 99)
+		// Only show notifications if valid config
+		if (!shouldDisplayNotificationForLevel(currentLevel) || !shouldDisplayNotificationForSkill(skill))
 		{
-			notifications.addNotification("Milestone level", "Gained level " + currentLevel + " in " + skill.getName() + "!");
-
-			// TODO: Add notifications when all skills are a min of 10, 20, 30, 40, 50, 60, 70, 80, 90 and 99
+			return;
 		}
+
+		String title = replaceSkillAndLevel(config.notificationTitle(), skill, currentLevel);
+		String text = replaceSkillAndLevel(config.notificationText(), skill, currentLevel);
+
+		notifications.addNotification(title, text);
+	}
+
+	private String replaceSkillAndLevel(String text, Skill skill, int level)
+	{
+		return Text.removeTags(text
+			.replaceAll("\\$skill", skill.getName())
+			.replaceAll("\\$level", Integer.toString(level)));
+	}
+
+	private boolean shouldDisplayNotificationForLevel(int level)
+	{
+		switch (config.showNotifications())
+		{
+			case ALWAYS:
+				return level > 1 && level <= 99;
+			case EVERY_10_LEVELS_AND_99:
+			default:
+				return (level > 10 && level % 10 == 0) || level == 99;
+		}
+	}
+
+	private boolean shouldDisplayNotificationForSkill(Skill skill)
+	{
+		switch (skill)
+		{
+			case ATTACK:
+				return config.showAttackNotifications();
+			case DEFENCE:
+				return config.showDefenceNotifications();
+			case STRENGTH:
+				return config.showStrengthNotifications();
+			case HITPOINTS:
+				return config.showHitpointsNotifications();
+			case RANGED:
+				return config.showRangedNotifications();
+			case PRAYER:
+				return config.showPrayerNotifications();
+			case MAGIC:
+				return config.showMagicNotifications();
+			case COOKING:
+				return config.showCookingNotifications();
+			case WOODCUTTING:
+				return config.showWoodcuttingNotifications();
+			case FLETCHING:
+				return config.showFletchingNotifications();
+			case FISHING:
+				return config.showFishingNotifications();
+			case FIREMAKING:
+				return config.showFiremakingNotifications();
+			case CRAFTING:
+				return config.showCraftingNotifications();
+			case SMITHING:
+				return config.showSmithingNotifications();
+			case MINING:
+				return config.showMiningNotifications();
+			case HERBLORE:
+				return config.showHerbloreNotifications();
+			case AGILITY:
+				return config.showAgilityNotifications();
+			case THIEVING:
+				return config.showThievingNotifications();
+			case SLAYER:
+				return config.showSlayerNotifications();
+			case FARMING:
+				return config.showFarmingNotifications();
+			case RUNECRAFT:
+				return config.showRunecraftNotifications();
+			case HUNTER:
+				return config.showHunterNotifications();
+			case CONSTRUCTION:
+				return config.showConstructionNotifications();
+		}
+
+		return true;
 	}
 
 	/**
@@ -116,26 +193,33 @@ public class MilestoneLevelsPlugin extends Plugin
 	{
 		if (developerMode && commandExecuted.getCommand().equals("level"))
 		{
-			// Don't trigger within last man standing as you would get a boatload of levels
-			if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
+			String level = Strings.join(commandExecuted.getArguments(), " ");
+
+			if (!level.isEmpty())
 			{
-				return;
-			}
+				int currentLevel = Integer.parseInt(level);
+				Skill skill = Skill.AGILITY;
 
-			String text = Strings.join(commandExecuted.getArguments(), " ");
-
-			if (!text.isEmpty())
-			{
-				int currentLevel = Integer.parseInt(text);
-
-				if (currentLevel % 10 == 0 || currentLevel == 99)
+				// Don't trigger within last man standing as you would get a boatload of levels
+				if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
 				{
-					notifications.addNotification("Milestone level", "Gained level " + currentLevel + " in " + Skill.AGILITY.getName() + "!");
+					return;
 				}
-				else
-				{
-					log.debug("Invalid level given");
+
+				if (!shouldDisplayNotificationForLevel(currentLevel)) {
+					log.debug("Should not show notifications for level {} with showNotifications() set to {}", currentLevel, config.showNotifications());
+					return;
 				}
+
+				if (!shouldDisplayNotificationForSkill(skill)) {
+					log.debug("Should not show notifications for skill {} with showNotifications() set to {}", skill.getName(), config.showNotifications());
+					return;
+				}
+
+				String title = replaceSkillAndLevel(config.notificationTitle(), skill, currentLevel);
+				String text = replaceSkillAndLevel(config.notificationText(), skill, currentLevel);
+
+				notifications.addNotification(title, text);
 			}
 		}
 	}
