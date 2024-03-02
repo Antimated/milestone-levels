@@ -4,11 +4,12 @@ import com.antimated.notifications.NotificationsManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
-import joptsimple.internal.Strings;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Skill;
@@ -84,21 +85,33 @@ public class MilestoneLevelsPlugin extends Plugin
 			return;
 		}
 
-		// Only show notifications if valid config
-		if (!displayNotificationForLevel(currentLevel) || !displayNotificationForSkill(skill))
+		onLevelUp(skill, currentLevel);
+	}
+
+	private void onLevelUp(Skill skill, int level)
+	{
+		if (!displayNotificationForLevel(level))
 		{
+			log.debug("Cannot show notification for level '{}' as level is not in list of valid levels.", level);
 			return;
 		}
 
-		String title = replaceSkillAndLevel(config.notificationTitle(), skill, currentLevel);
-		String text = replaceSkillAndLevel(config.notificationText(), skill, currentLevel);
+		if (!displayNotificationForSkill(skill))
+		{
+			log.debug("Cannot show notification for disabled skill '{}'.", skill.getName());
+			return;
+		}
+
+		String title = replaceSkillAndLevel(config.notificationTitle(), skill, level);
+		String text = replaceSkillAndLevel(config.notificationText(), skill, level);
 
 		notifications.addNotification(title, text);
 	}
 
 	/**
 	 * Replaces the words $skill and $level from the text to the passed skill and level respectively
-	 * @param text String
+	 *
+	 * @param text  String
 	 * @param skill Skill
 	 * @param level int
 	 * @return String
@@ -112,23 +125,26 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	/**
 	 * Checks whether a notification should be displayed for a given level.
+	 *
 	 * @param level int
 	 * @return boolean
 	 */
 	private boolean displayNotificationForLevel(int level)
 	{
-		switch (config.showNotifications())
-		{
-			case ALWAYS:
-				return level > 1 && level <= 99;
-			case EVERY_10_LEVELS_AND_99:
-			default:
-				return (level >= 10 && level % 10 == 0) || level == 99;
-		}
+		// Convert our comma separated list to a list of integers (filter out non integer values and invalid levels)
+		List<Integer> levels = Text.fromCSV(config.showOnLevels()).stream()
+			.distinct()
+			.filter(MilestoneLevelsPlugin::isInteger)
+			.map(Integer::parseInt)
+			.filter(MilestoneLevelsPlugin::isValidLevel)
+			.collect(Collectors.toList());
+
+		return levels.isEmpty() || levels.contains(level);
 	}
 
 	/**
 	 * Checks whether a notification should be displayed for the given skill.
+	 *
 	 * @param skill Skill
 	 * @return boolean
 	 */
@@ -205,38 +221,45 @@ public class MilestoneLevelsPlugin extends Plugin
 		return false;
 	}
 
+	/**
+	 * @param string String
+	 * @return boolean
+	 */
+	private static boolean isInteger(String string)
+	{
+		try
+		{
+			Integer.parseInt(string);
+			return true;
+		}
+		catch (NumberFormatException e)
+		{
+			return false;
+		}
+	}
+
+	private static boolean isValidLevel(Integer level)
+	{
+		return level >= 1 && level <= 99;
+	}
+
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted commandExecuted)
 	{
 		if (developerMode && commandExecuted.getCommand().equals("level"))
 		{
-			String level = Strings.join(commandExecuted.getArguments(), " ");
+			String[] args = commandExecuted.getArguments();
 
-			if (!level.isEmpty())
+			if (args.length == 2)
 			{
-				int currentLevel = Integer.parseInt(level);
-				Skill skill = Skill.AGILITY;
+				Skill skill = Skill.valueOf(args[0].toUpperCase());
+				int currentLevel = Integer.parseInt(args[1]);
 
-				// Don't trigger within last man standing as you would get a boatload of levels
-				if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
-				{
-					return;
-				}
-
-				if (!displayNotificationForLevel(currentLevel)) {
-					log.debug("Should not show notifications for level {} with showNotifications() set to {}", currentLevel, config.showNotifications());
-					return;
-				}
-
-				if (!displayNotificationForSkill(skill)) {
-					log.debug("Should not show notifications for skill {} with showNotifications() set to {}", skill.getName(), config.showNotifications());
-					return;
-				}
-
-				String title = replaceSkillAndLevel(config.notificationTitle(), skill, currentLevel);
-				String text = replaceSkillAndLevel(config.notificationText(), skill, currentLevel);
-
-				notifications.addNotification(title, text);
+				onLevelUp(skill, currentLevel);
+			}
+			else
+			{
+				log.debug("Invalid number of arguments for ::level command. Expected 2 got {}.", args.length);
 			}
 		}
 	}
