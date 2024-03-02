@@ -151,7 +151,7 @@ public class MilestoneLevelsPlugin extends Plugin
 			.filter(MilestoneLevelsPlugin::isValidLevel)
 			.collect(Collectors.toList());
 
-		return levels.isEmpty() || levels.contains(level);
+		return levels.isEmpty() && isValidLevel(level) || levels.contains(level);
 	}
 
 	/**
@@ -250,6 +250,11 @@ public class MilestoneLevelsPlugin extends Plugin
 		}
 	}
 
+	/**
+	 * Checks if a passed level is a valid level (1 - 99)
+	 * @param level Integer
+	 * @return boolean
+	 */
 	private static boolean isValidLevel(Integer level)
 	{
 		return level >= 1 && level <= 99;
