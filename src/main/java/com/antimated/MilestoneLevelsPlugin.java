@@ -22,7 +22,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.util.Text;
 
 @Slf4j
-@PluginDescriptor(name = "Milestone levels")
+@PluginDescriptor(name = "Milestone Levels")
 public class MilestoneLevelsPlugin extends Plugin
 {
 	@Inject
@@ -78,14 +78,14 @@ public class MilestoneLevelsPlugin extends Plugin
 		final int currentLevel = statChanged.getLevel();
 		final Integer previousLevel = skillLevel.put(skill, currentLevel);
 
-		// Previous level has to be set, and the previous level can not be larger or equal to the current level.
+		// Previous level has to be set, and if we have leveled up
 		if (previousLevel == null || previousLevel >= currentLevel)
 		{
 			return;
 		}
 
 		// Only show notifications if valid config
-		if (!shouldDisplayNotificationForLevel(currentLevel) || !shouldDisplayNotificationForSkill(skill))
+		if (!displayNotificationForLevel(currentLevel) || !displayNotificationForSkill(skill))
 		{
 			return;
 		}
@@ -96,6 +96,13 @@ public class MilestoneLevelsPlugin extends Plugin
 		notifications.addNotification(title, text);
 	}
 
+	/**
+	 * Replaces the words $skill and $level from the text to the passed skill and level respectively
+	 * @param text String
+	 * @param skill Skill
+	 * @param level int
+	 * @return String
+	 */
 	private String replaceSkillAndLevel(String text, Skill skill, int level)
 	{
 		return Text.removeTags(text
@@ -103,7 +110,12 @@ public class MilestoneLevelsPlugin extends Plugin
 			.replaceAll("\\$level", Integer.toString(level)));
 	}
 
-	private boolean shouldDisplayNotificationForLevel(int level)
+	/**
+	 * Checks whether a notification should be displayed for a given level.
+	 * @param level int
+	 * @return boolean
+	 */
+	private boolean displayNotificationForLevel(int level)
 	{
 		switch (config.showNotifications())
 		{
@@ -111,11 +123,16 @@ public class MilestoneLevelsPlugin extends Plugin
 				return level > 1 && level <= 99;
 			case EVERY_10_LEVELS_AND_99:
 			default:
-				return (level > 10 && level % 10 == 0) || level == 99;
+				return (level >= 10 && level % 10 == 0) || level == 99;
 		}
 	}
 
-	private boolean shouldDisplayNotificationForSkill(Skill skill)
+	/**
+	 * Checks whether a notification should be displayed for the given skill.
+	 * @param skill Skill
+	 * @return boolean
+	 */
+	private boolean displayNotificationForSkill(Skill skill)
 	{
 		switch (skill)
 		{
@@ -206,12 +223,12 @@ public class MilestoneLevelsPlugin extends Plugin
 					return;
 				}
 
-				if (!shouldDisplayNotificationForLevel(currentLevel)) {
+				if (!displayNotificationForLevel(currentLevel)) {
 					log.debug("Should not show notifications for level {} with showNotifications() set to {}", currentLevel, config.showNotifications());
 					return;
 				}
 
-				if (!shouldDisplayNotificationForSkill(skill)) {
+				if (!displayNotificationForSkill(skill)) {
 					log.debug("Should not show notifications for skill {} with showNotifications() set to {}", skill.getName(), config.showNotifications());
 					return;
 				}
