@@ -24,7 +24,11 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.util.Text;
 
 @Slf4j
-@PluginDescriptor(name = "Milestone Levels")
+@PluginDescriptor(
+	name = "Milestone Levels",
+	description = "Display milestone levels on a fancy notification",
+	tags = {"level", "skill", "notification", "notifier"}
+)
 public class MilestoneLevelsPlugin extends Plugin
 {
 	@Inject
@@ -76,6 +80,7 @@ public class MilestoneLevelsPlugin extends Plugin
 			return;
 		}
 
+		// Current stat change level
 		final Skill skill = statChanged.getSkill();
 		final int currentLevel = statChanged.getLevel();
 		final Integer previousLevel = skillLevel.put(skill, currentLevel);
