@@ -11,6 +11,7 @@ import net.runelite.api.WidgetNode;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetModalMode;
+import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.ui.JagexColors;
@@ -21,7 +22,7 @@ public class NotificationsManager
 {
 	private static final int SCRIPT_ID = 3343; // NOTIFICATION_DISPLAY_INIT
 
-	private static final int COMPONENT_ID = ((303 << 16) | 2); // 303 group id, 2 child id
+	private static final int COMPONENT_ID = WidgetUtil.packComponentId(303, 2); // (interfaceId << 16) | childId
 
 	private static final int INTERFACE_ID = 660;
 
