@@ -73,8 +73,14 @@ public class MilestoneLevelsPlugin extends Plugin
 	@Subscribe
 	public void onStatChanged(StatChanged statChanged)
 	{
-		// Ignore Last Man Standing
-		if (RuneScapeProfileType.getCurrent(client) != RuneScapeProfileType.STANDARD || isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
+		// Must be on a regular game world
+		if (RuneScapeProfileType.getCurrent(client) != RuneScapeProfileType.STANDARD)
+		{
+			return;
+		}
+
+		// Player must not be in LMS
+		if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
 		{
 			return;
 		}

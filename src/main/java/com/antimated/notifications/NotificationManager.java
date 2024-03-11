@@ -55,8 +55,6 @@ public class NotificationManager
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
-		log.debug("Notifications size: {}", notifications.size());
-		log.debug("isProcessingNotification: {}", isProcessingNotification);
 		processNotification();
 	}
 
