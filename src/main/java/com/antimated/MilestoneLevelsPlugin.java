@@ -1,6 +1,6 @@
 package com.antimated;
 
-import com.antimated.notifications.NotificationsManager;
+import com.antimated.notifications.NotificationManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
 import java.awt.Color;
@@ -17,6 +17,7 @@ import net.runelite.api.Skill;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.StatChanged;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.config.RuneScapeProfileType;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -41,7 +42,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	private EventBus eventBus;
 
 	@Inject
-	private NotificationsManager notifications;
+	private NotificationManager notifications;
 
 	@Inject
 	@Named("developerMode")
@@ -58,16 +59,14 @@ public class MilestoneLevelsPlugin extends Plugin
 	}
 
 	@Override
-	protected void startUp() throws Exception
+	protected void startUp()
 	{
-		eventBus.register(notifications);
 		notifications.startUp();
 	}
 
 	@Override
-	protected void shutDown() throws Exception
+	protected void shutDown()
 	{
-		eventBus.unregister(notifications);
 		notifications.shutDown();
 	}
 
@@ -75,7 +74,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	public void onStatChanged(StatChanged statChanged)
 	{
 		// Ignore Last Man Standing
-		if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
+		if (RuneScapeProfileType.getCurrent(client) != RuneScapeProfileType.STANDARD || isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
 		{
 			return;
 		}
@@ -257,6 +256,7 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	/**
 	 * Checks if a passed level is a valid level (1 - 99)
+	 *
 	 * @param level Integer
 	 * @return boolean
 	 */
@@ -268,20 +268,32 @@ public class MilestoneLevelsPlugin extends Plugin
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted commandExecuted)
 	{
-		if (developerMode && commandExecuted.getCommand().equals("level"))
+		if (developerMode)
 		{
 			String[] args = commandExecuted.getArguments();
-
-			if (args.length == 2)
+			switch (commandExecuted.getCommand())
 			{
-				Skill skill = Skill.valueOf(args[0].toUpperCase());
-				int currentLevel = Integer.parseInt(args[1]);
+				case "level":
+					if (args.length == 2)
+					{
+						Skill skill = Skill.valueOf(args[0].toUpperCase());
+						int currentLevel = Integer.parseInt(args[1]);
 
-				onLevelUp(skill, currentLevel);
-			}
-			else
-			{
-				log.debug("Invalid number of arguments for ::level command. Expected 2 got {}.", args.length);
+						onLevelUp(skill, currentLevel);
+					}
+					else
+					{
+						log.debug("Invalid number of arguments for ::level command. Expected 2 got {}.", args.length);
+					}
+					break;
+
+				case "notify":
+					for (int i = 1; i <= 500; i++)
+					{
+						notifications.addNotification("Notification", "Test notification number: <col=ffffff>" + i + "</col>");
+					}
+
+					break;
 			}
 		}
 	}

@@ -1,24 +1,26 @@
 package com.antimated.notifications;
 
-import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.JagexColor;
+import net.runelite.api.GameState;
 import net.runelite.api.WidgetNode;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetModalMode;
 import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.ui.JagexColors;
 
 @Slf4j
 @Singleton
-public class NotificationsManager
+public class NotificationManager
 {
 	private static final int SCRIPT_ID = 3343; // NOTIFICATION_DISPLAY_INIT
 
@@ -26,13 +28,10 @@ public class NotificationsManager
 
 	private static final int INTERFACE_ID = 660;
 
-	private final LinkedList<NotificationItem> notifications = new LinkedList<>();
+	private final Queue<Notification> notifications = new ConcurrentLinkedQueue<>();
 
 	@Getter
 	private boolean isProcessingNotification = false;
-
-	@Getter
-	private boolean canProcessNotifications = false;
 
 	@Inject
 	private Client client;
@@ -40,24 +39,38 @@ public class NotificationsManager
 	@Inject
 	private ClientThread clientThread;
 
+	@Inject
+	private EventBus eventBus;
+
+	@Subscribe
+	public void onGameStateChanged(GameStateChanged gameStateChanged)
+	{
+		// Clear notifications when on login screen
+		if (gameStateChanged.getGameState() != GameState.LOGGED_IN)
+		{
+			clearNotifications();
+		}
+
+	}
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
-		if (canProcessNotifications)
-		{
-			processNotification();
-		}
+		log.debug("Notifications size: {}", notifications.size());
+		log.debug("isProcessingNotification: {}", isProcessingNotification);
+		processNotification();
 	}
 
 	public void startUp()
 	{
-		canProcessNotifications = true;
+		log.debug("NotificationManager startUp()");
+		eventBus.register(this);
 	}
 
 	public void shutDown()
 	{
-		canProcessNotifications = false;
-		notifications.clear();
+		log.debug("NotificationManager shutDown()");
+		clearNotifications();
+		eventBus.unregister(this);
 	}
 
 	public void addNotification(String title, String text)
@@ -67,7 +80,7 @@ public class NotificationsManager
 
 	public void addNotification(String title, String text, int color)
 	{
-		NotificationItem notification = new NotificationItem(title, text, color);
+		Notification notification = new Notification(title, text, color);
 		notifications.offer(notification);
 	}
 
@@ -80,7 +93,7 @@ public class NotificationsManager
 		if (!notifications.isEmpty() && !isProcessingNotification)
 		{
 			// Get and remove the first element in the notifications queue.
-			NotificationItem notification = notifications.poll();
+			Notification notification = notifications.poll();
 
 			// Display notification
 			displayNotification(notification);
@@ -89,11 +102,9 @@ public class NotificationsManager
 
 	/**
 	 * Display a notification and close it afterwards.
-	 * @param notification NotificationItem
-	 * @throws IllegalStateException
-	 * @throws IllegalArgumentException
+	 * @param notification Notification
 	 */
-	private void displayNotification(NotificationItem notification) throws IllegalStateException, IllegalArgumentException
+	private void displayNotification(Notification notification) throws IllegalStateException, IllegalArgumentException
 	{
 		isProcessingNotification = true;
 
@@ -121,5 +132,13 @@ public class NotificationsManager
 			// Invoke done
 			return true;
 		});
+	}
+
+	/**
+	 * Clears the current list of notifications and makes sure the processing notifications state is set to false
+	 */
+	private void clearNotifications() {
+		isProcessingNotification = false;
+		notifications.clear();
 	}
 }
