@@ -27,7 +27,7 @@ import net.runelite.client.util.Text;
 @Slf4j
 @PluginDescriptor(
 	name = "Milestone Levels",
-	description = "Display milestone levels on a fancy notification",
+	description = "Display milestone levels on a fancy league-like notification",
 	tags = {"level", "skill", "notification", "notifier"}
 )
 public class MilestoneLevelsPlugin extends Plugin
