@@ -173,6 +173,13 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	/**
 	 * Checks whether a notification should be displayed for the given skill.
+	 * Assumes the following format:
+	 *
+	 * <ul>
+	 *     <li>showAttackNotifications</li>
+	 *     <li>showStrengthNotifications</li>
+	 *     <li>...</li>
+	 * </ul>
 	 *
 	 * @param skill Skill
 	 * @return boolean
