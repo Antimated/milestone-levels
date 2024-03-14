@@ -260,10 +260,15 @@ public class MilestoneLevelsPlugin extends Plugin
 				case "level":
 					if (args.length == 2)
 					{
-						Skill skill = Skill.valueOf(args[0].toUpperCase());
-						int currentLevel = Integer.parseInt(args[1]);
+						try {
+							Skill skill = Skill.valueOf(args[0].toUpperCase());
+							int currentLevel = Integer.parseInt(args[1]);
 
-						onLevelUp(skill, currentLevel);
+							onLevelUp(skill, currentLevel);
+						} catch (IllegalArgumentException e) {
+							log.debug("Invalid arguments for ::level command. {}.", e.getMessage());
+						}
+
 					}
 					else
 					{
