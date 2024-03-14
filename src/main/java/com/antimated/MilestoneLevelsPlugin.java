@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Skill;
@@ -181,17 +182,17 @@ public class MilestoneLevelsPlugin extends Plugin
 	 *     <li>...</li>
 	 * </ul>
 	 *
+	 * If an invalid method is found, we return false by default.
+	 *
 	 * @param skill Skill
 	 * @return boolean
 	 */
-	private boolean displayNotificationForSkill(Skill skill)
+	private boolean displayNotificationForSkill(@NonNull Skill skill)
 	{
 		try
 		{
-			// Build method name by skill
-			String methodName = "show" + skill.getName() + "Notifications";
-			// Attempt to fetch the methodName
-			Method showSkillNotifications = MilestoneLevelsConfig.class.getMethod(methodName);
+			// Attempt to get method by its dynamically created name
+			Method showSkillNotifications = MilestoneLevelsConfig.class.getMethod("show" + skill.getName() + "Notifications");
 			// Return the value of the invoked method
 			return (boolean) showSkillNotifications.invoke(config);
 		}
