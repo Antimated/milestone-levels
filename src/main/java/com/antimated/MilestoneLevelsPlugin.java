@@ -4,6 +4,8 @@ import com.antimated.notifications.NotificationManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
 import java.awt.Color;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,6 +147,16 @@ public class MilestoneLevelsPlugin extends Plugin
 			.replaceAll("\\$level", Integer.toString(level)));
 	}
 
+	private List<Integer> convertToLevels(String levels)
+	{
+		return Text.fromCSV(levels).stream()
+			.distinct()
+			.filter(MilestoneLevelsPlugin::isInteger)
+			.map(Integer::parseInt)
+			.filter(MilestoneLevelsPlugin::isValidLevel)
+			.collect(Collectors.toList());
+	}
+
 	/**
 	 * Checks whether a notification should be displayed for a given level.
 	 *
@@ -154,12 +166,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	private boolean displayNotificationForLevel(int level)
 	{
 		// Convert our comma separated list to a list of integers (filter out non integer values and invalid levels)
-		List<Integer> levels = Text.fromCSV(config.showOnLevels()).stream()
-			.distinct()
-			.filter(MilestoneLevelsPlugin::isInteger)
-			.map(Integer::parseInt)
-			.filter(MilestoneLevelsPlugin::isValidLevel)
-			.collect(Collectors.toList());
+		List<Integer> levels = convertToLevels(config.showOnLevels());
 
 		return levels.isEmpty() && isValidLevel(level) || levels.contains(level);
 	}
@@ -172,57 +179,21 @@ public class MilestoneLevelsPlugin extends Plugin
 	 */
 	private boolean displayNotificationForSkill(Skill skill)
 	{
-		switch (skill)
+		try
 		{
-			case ATTACK:
-				return config.showAttackNotifications();
-			case DEFENCE:
-				return config.showDefenceNotifications();
-			case STRENGTH:
-				return config.showStrengthNotifications();
-			case HITPOINTS:
-				return config.showHitpointsNotifications();
-			case RANGED:
-				return config.showRangedNotifications();
-			case PRAYER:
-				return config.showPrayerNotifications();
-			case MAGIC:
-				return config.showMagicNotifications();
-			case COOKING:
-				return config.showCookingNotifications();
-			case WOODCUTTING:
-				return config.showWoodcuttingNotifications();
-			case FLETCHING:
-				return config.showFletchingNotifications();
-			case FISHING:
-				return config.showFishingNotifications();
-			case FIREMAKING:
-				return config.showFiremakingNotifications();
-			case CRAFTING:
-				return config.showCraftingNotifications();
-			case SMITHING:
-				return config.showSmithingNotifications();
-			case MINING:
-				return config.showMiningNotifications();
-			case HERBLORE:
-				return config.showHerbloreNotifications();
-			case AGILITY:
-				return config.showAgilityNotifications();
-			case THIEVING:
-				return config.showThievingNotifications();
-			case SLAYER:
-				return config.showSlayerNotifications();
-			case FARMING:
-				return config.showFarmingNotifications();
-			case RUNECRAFT:
-				return config.showRunecraftNotifications();
-			case HUNTER:
-				return config.showHunterNotifications();
-			case CONSTRUCTION:
-				return config.showConstructionNotifications();
+			// Build method name by skill
+			String methodName = "show" + skill.getName() + "Notifications";
+			// Attempt to fetch the methodName
+			Method showSkillNotifications = MilestoneLevelsConfig.class.getMethod(methodName);
+			// Return the value of the invoked method
+			return (boolean) showSkillNotifications.invoke(config);
 		}
-
-		return true;
+		catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
+		{
+			log.error("Method not found: {}", e.getMessage());
+			// Skill not added to config list, so return false
+			return false;
+		}
 	}
 
 	/**
