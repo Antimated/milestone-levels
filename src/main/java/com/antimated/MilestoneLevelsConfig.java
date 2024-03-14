@@ -72,6 +72,18 @@ public interface MilestoneLevelsConfig extends Config
 		return "10, 20, 30, 40, 50, 60, 70, 80, 90, 99";
 	}
 
+	@ConfigItem(
+		keyName = "showMultiLevels",
+		name = "Multi leveling",
+		description = "Leveling from level 1 to 40 in one go would show notifications for level 10, 20, 30 and 40 (based on the default levels list)",
+		section = levelsConfig,
+		position = 1
+	)
+	default boolean showMultiLevels()
+	{
+		return true;
+	}
+
 	@ConfigSection(
 		name = "Skills",
 		description = "Settings for what skills we want to display notifications on",

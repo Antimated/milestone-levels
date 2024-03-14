@@ -31,7 +31,7 @@ import net.runelite.client.util.Text;
 @PluginDescriptor(
 	name = "Milestone Levels",
 	description = "Display milestone levels on a fancy league-like notification",
-	tags = {"level", "skill", "notification", "notifier"}
+	tags = {"level", "skill", "notification", "notifier", "milestone"}
 )
 public class MilestoneLevelsPlugin extends Plugin
 {
@@ -99,20 +99,34 @@ public class MilestoneLevelsPlugin extends Plugin
 			return;
 		}
 
+		// We have leveled up, now check for multi levels (imagine going from level 1 to 40 in one go)
+		if (config.showMultiLevels())
+		{
+			for (int multiLevel = previousLevel + 1; multiLevel <= currentLevel; multiLevel++)
+			{
+				onLevelUp(skill, multiLevel);
+			}
+
+			return;
+		}
+
 		onLevelUp(skill, currentLevel);
 	}
 
+	/**
+	 * Adds a level-up notification to the queue if certain requirements are met.
+	 * @param skill Skill
+	 * @param level int
+	 */
 	private void onLevelUp(Skill skill, int level)
 	{
 		if (!displayNotificationForLevel(level))
 		{
-			log.debug("Cannot show notification for level '{}' as level is not in list of valid levels.", level);
 			return;
 		}
 
 		if (!displayNotificationForSkill(skill))
 		{
-			log.debug("Cannot show notification for disabled skill '{}'.", skill.getName());
 			return;
 		}
 
@@ -120,9 +134,16 @@ public class MilestoneLevelsPlugin extends Plugin
 		String text = replaceSkillAndLevel(config.notificationText(), skill, level);
 		int color = getIntValue(config.notificationColor());
 
+		log.debug("Leveled up {} to {}", skill.getName(), level);
 		notifications.addNotification(title, text, color);
 	}
 
+	/**
+	 * Gets the int value for a color.
+	 *
+	 * @param color color
+	 * @return int
+	 */
 	private int getIntValue(Color color)
 	{
 		int red = color.getRed();
@@ -148,6 +169,12 @@ public class MilestoneLevelsPlugin extends Plugin
 			.replaceAll("\\$level", Integer.toString(level)));
 	}
 
+	/**
+	 * Converts a list of comma separated levels to an integer list.
+	 *
+	 * @param levels A comma separated list of levels
+	 * @return List<Integer>
+	 */
 	private List<Integer> convertToLevels(String levels)
 	{
 		return Text.fromCSV(levels).stream()
@@ -181,7 +208,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	 *     <li>showStrengthNotifications</li>
 	 *     <li>...</li>
 	 * </ul>
-	 *
+	 * <p>
 	 * If an invalid method is found, we return false by default.
 	 *
 	 * @param skill Skill
@@ -261,18 +288,29 @@ public class MilestoneLevelsPlugin extends Plugin
 				case "level":
 					if (args.length == 2)
 					{
-						try {
+						try
+						{
 							Skill skill = Skill.valueOf(args[0].toUpperCase());
 							int currentLevel = Integer.parseInt(args[1]);
 
 							onLevelUp(skill, currentLevel);
-						} catch (IllegalArgumentException e) {
+						}
+						catch (IllegalArgumentException e)
+						{
 							log.debug("Invalid arguments for ::level command. {}.", e.getMessage());
 						}
 
 					}
 					else
 					{
+						for (Skill skill : Skill.values())
+						{
+							for (int currentLevel = 1; currentLevel <= 99; currentLevel++)
+							{
+								onLevelUp(skill, currentLevel);
+							}
+						}
+
 						log.debug("Invalid number of arguments for ::level command. Expected 2 got {}.", args.length);
 					}
 					break;
@@ -283,6 +321,9 @@ public class MilestoneLevelsPlugin extends Plugin
 						notifications.addNotification("Notification", "Test notification number: <col=ffffff>" + i + "</col>");
 					}
 
+					break;
+				case "clear":
+					notifications.clearNotifications();
 					break;
 			}
 		}

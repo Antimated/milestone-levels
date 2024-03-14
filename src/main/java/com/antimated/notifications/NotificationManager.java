@@ -99,6 +99,15 @@ public class NotificationManager
 		}
 	}
 
+
+	/**
+	 * Clears the current list of notifications and makes sure the processing notifications state is set to false
+	 */
+	public void clearNotifications()
+	{
+		notifications.clear();
+	}
+
 	/**
 	 * Display a notification and close it afterward.
 	 *
@@ -127,13 +136,5 @@ public class NotificationManager
 			// Invoke done
 			return true;
 		});
-	}
-
-	/**
-	 * Clears the current list of notifications and makes sure the processing notifications state is set to false
-	 */
-	private void clearNotifications()
-	{
-		notifications.clear();
 	}
 }
