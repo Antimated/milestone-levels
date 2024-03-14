@@ -15,5 +15,4 @@ Gives you a way to get a fancy league-like notification whenever you level up!
   - All skills are selected by default but if for some reason you want to only show levels for certain skills, it's there!
 - Multi-levels: leveling from level 1 to 20 at once will now trigger notifications for level 10 and 20 (if those are set in your levels list).
 
-![image](https://github.com/Antimated/milestone-levels/assets/2869409/34d345e2-6043-4597-ae18-dffac8dfa141)
-
+![image](https://github.com/Antimated/milestone-levels/assets/2869409/c831cc43-7cb2-4f71-9b92-cccfde117d4f)
