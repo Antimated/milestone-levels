@@ -96,16 +96,12 @@ public class MilestoneLevelsPlugin extends Plugin
 			return;
 		}
 
-		log.debug("We leveled?");
-
 		// Only standard worlds are allowed, and player shouldn't be in LMS
 		if (Util.isStandardWorld(client) || Util.isPlayerWithinMapRegion(client, LAST_MAN_STANDING_REGIONS))
 		{
 			log.debug("Not on a standard world or in a LMS game.");
 			return;
 		}
-
-		log.debug("Previous level: {} - current level: {}", previousLevel, currentLevel);
 
 		// Check for multi-leveling
 		for (int level = previousLevel + 1; level <= currentLevel; level++)
@@ -117,7 +113,7 @@ public class MilestoneLevelsPlugin extends Plugin
 			}
 
 			// Valid virtual levels with the showVirtualLevels setting should always display
-			// regardless of the getLevelList or enabled skills.
+			// regardless of the level list or enabled skills.
 			if (shouldNotifyForVirtualLevel(level))
 			{
 				notify(skill, level);
@@ -140,6 +136,9 @@ public class MilestoneLevelsPlugin extends Plugin
 			.collect(Collectors.toList());
 	}
 
+	/**
+	 * Populate initial xp per skill.
+	 */
 	private void initializePreviousXpMap()
 	{
 		if (client.getGameState() != GameState.LOGGED_IN)
