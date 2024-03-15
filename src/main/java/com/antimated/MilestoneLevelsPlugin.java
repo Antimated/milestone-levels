@@ -1,24 +1,25 @@
 package com.antimated;
 
 import com.antimated.notifications.NotificationManager;
+import com.antimated.util.Util;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
-import java.awt.Color;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
+import net.runelite.api.Experience;
+import net.runelite.api.GameState;
 import net.runelite.api.Skill;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.StatChanged;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.config.RuneScapeProfileType;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -37,6 +38,9 @@ public class MilestoneLevelsPlugin extends Plugin
 	private Client client;
 
 	@Inject
+	private ClientThread clientThread;
+
+	@Inject
 	private MilestoneLevelsConfig config;
 
 	@Inject
@@ -49,7 +53,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	@Named("developerMode")
 	boolean developerMode;
 
-	private final Map<Skill, Integer> skillLevel = new HashMap<>();
+	private final Map<Skill, Integer> previousXpMap = new EnumMap<>(Skill.class);
 
 	private static final Set<Integer> LAST_MAN_STANDING_REGIONS = ImmutableSet.of(13658, 13659, 13660, 13914, 13915, 13916, 13918, 13919, 13920, 14174, 14175, 14176, 14430, 14431, 14432);
 
@@ -62,148 +66,137 @@ public class MilestoneLevelsPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
+		clientThread.invoke(this::initializePreviousXpMap);
 		notifications.startUp();
 	}
 
 	@Override
 	protected void shutDown()
 	{
+		previousXpMap.clear();
 		notifications.shutDown();
 	}
 
 	@Subscribe
 	public void onStatChanged(StatChanged statChanged)
 	{
-		// Must be on a regular game world
-		if (RuneScapeProfileType.getCurrent(client) != RuneScapeProfileType.STANDARD)
-		{
-			return;
-		}
-
-		// Player must not be in LMS
-		if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS))
-		{
-			return;
-		}
-
-		// Current stat change level
 		final Skill skill = statChanged.getSkill();
-		final int currentLevel = statChanged.getLevel();
-		final Integer previousLevel = skillLevel.put(skill, currentLevel);
+
+		final int currentXp = statChanged.getXp();
+		final int currentLevel = Experience.getLevelForXp(currentXp);
+
+		final int previousXp = previousXpMap.getOrDefault(skill, -1);
+		final int previousLevel = previousXp == -1 ? -1 : Experience.getLevelForXp(previousXp);
+
+		previousXpMap.put(skill, currentXp);
 
 		// Previous level has to be set, and if we have leveled up
-		if (previousLevel == null || previousLevel >= currentLevel)
+		if (previousLevel == -1 || previousLevel >= currentLevel)
 		{
 			return;
 		}
 
-		// We have leveled up, now check for multi levels (imagine going from level 1 to 40 in one go)
-		if (config.showMultiLevels())
+		log.debug("We leveled?");
+
+		// Only standard worlds are allowed, and player shouldn't be in LMS
+		if (Util.isStandardWorld(client) || Util.isPlayerWithinMapRegion(client, LAST_MAN_STANDING_REGIONS))
 		{
-			for (int multiLevel = previousLevel + 1; multiLevel <= currentLevel; multiLevel++)
+			log.debug("Not on a standard world or in a LMS game.");
+			return;
+		}
+
+		log.debug("Previous level: {} - current level: {}", previousLevel, currentLevel);
+
+		// Check for multi-leveling
+		for (int level = previousLevel + 1; level <= currentLevel; level++)
+		{
+			if (shouldNotifyForRealLevel(level) && shouldNotifyForSkill(skill))
 			{
-				onLevelUp(skill, multiLevel);
+				notify(skill, level);
+				continue;
 			}
 
-			return;
+			// Valid virtual levels with the showVirtualLevels setting should always display
+			// regardless of the getLevelList or enabled skills.
+			if (shouldNotifyForVirtualLevel(level))
+			{
+				notify(skill, level);
+			}
 		}
+	}
 
-		onLevelUp(skill, currentLevel);
+	/**
+	 * Gets list of valid real levels from config
+	 *
+	 * @return List<Integer>
+	 */
+	private List<Integer> getLevelList()
+	{
+		return Text.fromCSV(config.showOnLevels()).stream()
+			.distinct()
+			.filter(Util::isInteger)
+			.map(Integer::parseInt)
+			.filter(Util::isValidRealLevel)
+			.collect(Collectors.toList());
+	}
+
+	private void initializePreviousXpMap()
+	{
+		if (client.getGameState() != GameState.LOGGED_IN)
+		{
+			previousXpMap.clear();
+		}
+		else
+		{
+			for (final Skill skill : Skill.values())
+			{
+				previousXpMap.put(skill, client.getSkillExperience(skill));
+			}
+		}
 	}
 
 	/**
 	 * Adds a level-up notification to the queue if certain requirements are met.
+	 *
 	 * @param skill Skill
 	 * @param level int
 	 */
-	private void onLevelUp(Skill skill, int level)
+	private void notify(Skill skill, int level)
 	{
-		if (!displayNotificationForLevel(level))
-		{
-			return;
-		}
+		String title = Util.replaceSkillAndLevel(config.notificationTitle(), skill, level);
+		String text = Util.replaceSkillAndLevel(config.notificationText(), skill, level);
+		int color = Util.getIntValue(config.notificationColor());
 
-		if (!displayNotificationForSkill(skill))
-		{
-			return;
-		}
-
-		String title = replaceSkillAndLevel(config.notificationTitle(), skill, level);
-		String text = replaceSkillAndLevel(config.notificationText(), skill, level);
-		int color = getIntValue(config.notificationColor());
-
-		log.debug("Leveled up {} to {}", skill.getName(), level);
+		log.debug("Notify level up for {} to level {}", skill.getName(), level);
 		notifications.addNotification(title, text, color);
 	}
 
 	/**
-	 * Gets the int value for a color.
-	 *
-	 * @param color color
-	 * @return int
-	 */
-	private int getIntValue(Color color)
-	{
-		int red = color.getRed();
-		int green = color.getGreen();
-		int blue = color.getBlue();
-
-		// Combine RGB values into a single integer
-		return (red << 16) | (green << 8) | blue;
-	}
-
-	/**
-	 * Replaces the words $skill and $level from the text to the passed skill and level respectively
-	 *
-	 * @param text  String
-	 * @param skill Skill
-	 * @param level int
-	 * @return String
-	 */
-	private String replaceSkillAndLevel(String text, Skill skill, int level)
-	{
-		return Text.removeTags(text
-			.replaceAll("\\$skill", skill.getName())
-			.replaceAll("\\$level", Integer.toString(level)));
-	}
-
-	/**
-	 * Converts a list of comma separated levels to an integer list.
-	 *
-	 * @param levels A comma separated list of levels
-	 * @return List<Integer>
-	 */
-	private List<Integer> convertToLevels(String levels)
-	{
-		return Text.fromCSV(levels).stream()
-			.distinct()
-			.filter(MilestoneLevelsPlugin::isInteger)
-			.map(Integer::parseInt)
-			.filter(MilestoneLevelsPlugin::isValidLevel)
-			.collect(Collectors.toList());
-	}
-
-	/**
-	 * Checks whether a notification should be displayed for a given level.
-	 *
+	 * Check if we should notify for the given potential real level
 	 * @param level int
 	 * @return boolean
 	 */
-	private boolean displayNotificationForLevel(int level)
+	private boolean shouldNotifyForRealLevel(int level)
 	{
-		// Convert our comma separated list to a list of integers (filter out non integer values and invalid levels)
-		List<Integer> levels = convertToLevels(config.showOnLevels());
-
-		return levels.isEmpty() && isValidLevel(level) || levels.contains(level);
+		return Util.isValidRealLevel(level) && (getLevelList().contains(level) || getLevelList().isEmpty());
 	}
 
 	/**
-	 * Checks whether a notification should be displayed for the given skill.
-	 *
+	 * Check if we should notify for the given potential virtual level
+	 * @param level int
+	 * @return boolean
+	 */
+	private boolean shouldNotifyForVirtualLevel(int level)
+	{
+		return Util.isValidVirtualLevel(level) && config.showVirtualLevels();
+	}
+
+	/**
+	 * Check if we should notify for the given skill based off of our config settings.
 	 * @param skill Skill
 	 * @return boolean
 	 */
-	private boolean displayNotificationForSkill(@NonNull Skill skill)
+	private boolean shouldNotifyForSkill(Skill skill)
 	{
 		switch (skill)
 		{
@@ -258,52 +251,6 @@ public class MilestoneLevelsPlugin extends Plugin
 		return true;
 	}
 
-	/**
-	 * Is player currently within the provided map regions
-	 */
-	private boolean isPlayerWithinMapRegion(Set<Integer> definedMapRegions)
-	{
-		final int[] mapRegions = client.getMapRegions();
-
-		for (int region : mapRegions)
-		{
-			if (definedMapRegions.contains(region))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param string String
-	 * @return boolean
-	 */
-	private static boolean isInteger(String string)
-	{
-		try
-		{
-			Integer.parseInt(string);
-			return true;
-		}
-		catch (NumberFormatException e)
-		{
-			return false;
-		}
-	}
-
-	/**
-	 * Checks if a passed level is a valid level (1 - 99)
-	 *
-	 * @param level Integer
-	 * @return boolean
-	 */
-	private static boolean isValidLevel(Integer level)
-	{
-		return level >= 1 && level <= 99;
-	}
-
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted commandExecuted)
 	{
@@ -312,43 +259,6 @@ public class MilestoneLevelsPlugin extends Plugin
 			String[] args = commandExecuted.getArguments();
 			switch (commandExecuted.getCommand())
 			{
-				case "level":
-					if (args.length == 2)
-					{
-						try
-						{
-							Skill skill = Skill.valueOf(args[0].toUpperCase());
-							int currentLevel = Integer.parseInt(args[1]);
-
-							onLevelUp(skill, currentLevel);
-						}
-						catch (IllegalArgumentException e)
-						{
-							log.debug("Invalid arguments for ::level command. {}.", e.getMessage());
-						}
-
-					}
-					else
-					{
-						for (Skill skill : Skill.values())
-						{
-							for (int currentLevel = 1; currentLevel <= 99; currentLevel++)
-							{
-								onLevelUp(skill, currentLevel);
-							}
-						}
-
-						log.debug("Invalid number of arguments for ::level command. Expected 2 got {}.", args.length);
-					}
-					break;
-
-				case "notify":
-					for (int i = 1; i <= 500; i++)
-					{
-						notifications.addNotification("Notification", "Test notification number: <col=ffffff>" + i + "</col>");
-					}
-
-					break;
 				case "clear":
 					notifications.clearNotifications();
 					break;

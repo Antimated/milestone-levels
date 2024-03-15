@@ -73,13 +73,13 @@ public interface MilestoneLevelsConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "showMultiLevels",
-		name = "Multi leveling",
-		description = "Leveling from level 1 to 40 in one go would show notifications for level 10, 20, 30 and 40 (based on the default levels list)",
+		keyName = "showVirtualLevels",
+		name = "Notify for virtual levels",
+		description = "Notify when leveling a virtual level. Ignores the list of levels and skills.",
 		section = levelsConfig,
 		position = 1
 	)
-	default boolean showMultiLevels()
+	default boolean showVirtualLevels()
 	{
 		return true;
 	}
