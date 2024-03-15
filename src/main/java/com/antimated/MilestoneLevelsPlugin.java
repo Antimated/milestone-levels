@@ -4,8 +4,6 @@ import com.antimated.notifications.NotificationManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
 import java.awt.Color;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -201,34 +199,63 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	/**
 	 * Checks whether a notification should be displayed for the given skill.
-	 * Assumes the following format:
-	 *
-	 * <ul>
-	 *     <li>showAttackNotifications</li>
-	 *     <li>showStrengthNotifications</li>
-	 *     <li>...</li>
-	 * </ul>
-	 * <p>
-	 * If an invalid method is found, we return false by default.
 	 *
 	 * @param skill Skill
 	 * @return boolean
 	 */
 	private boolean displayNotificationForSkill(@NonNull Skill skill)
 	{
-		try
+		switch (skill)
 		{
-			// Attempt to get method by its dynamically created name
-			Method showSkillNotifications = MilestoneLevelsConfig.class.getMethod("show" + skill.getName() + "Notifications");
-			// Return the value of the invoked method
-			return (boolean) showSkillNotifications.invoke(config);
+			case ATTACK:
+				return config.showAttackNotifications();
+			case DEFENCE:
+				return config.showDefenceNotifications();
+			case STRENGTH:
+				return config.showStrengthNotifications();
+			case HITPOINTS:
+				return config.showHitpointsNotifications();
+			case RANGED:
+				return config.showRangedNotifications();
+			case PRAYER:
+				return config.showPrayerNotifications();
+			case MAGIC:
+				return config.showMagicNotifications();
+			case COOKING:
+				return config.showCookingNotifications();
+			case WOODCUTTING:
+				return config.showWoodcuttingNotifications();
+			case FLETCHING:
+				return config.showFletchingNotifications();
+			case FISHING:
+				return config.showFishingNotifications();
+			case FIREMAKING:
+				return config.showFiremakingNotifications();
+			case CRAFTING:
+				return config.showCraftingNotifications();
+			case SMITHING:
+				return config.showSmithingNotifications();
+			case MINING:
+				return config.showMiningNotifications();
+			case HERBLORE:
+				return config.showHerbloreNotifications();
+			case AGILITY:
+				return config.showAgilityNotifications();
+			case THIEVING:
+				return config.showThievingNotifications();
+			case SLAYER:
+				return config.showSlayerNotifications();
+			case FARMING:
+				return config.showFarmingNotifications();
+			case RUNECRAFT:
+				return config.showRunecraftNotifications();
+			case HUNTER:
+				return config.showHunterNotifications();
+			case CONSTRUCTION:
+				return config.showConstructionNotifications();
 		}
-		catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
-		{
-			log.error("Method not found: {}", e.getMessage());
-			// Skill not added to config list, so return false
-			return false;
-		}
+
+		return true;
 	}
 
 	/**
