@@ -48,9 +48,15 @@ public class NotificationManager
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
 		// Clear notifications when not logged in
-		if (gameStateChanged.getGameState() != GameState.LOGGED_IN)
+		switch (gameStateChanged.getGameState())
 		{
-			clearNotifications();
+			case HOPPING:
+			case LOGGING_IN:
+			case LOGIN_SCREEN:
+			case LOGIN_SCREEN_AUTHENTICATOR:
+			case CONNECTION_LOST:
+				clearNotifications();
+				break;
 		}
 	}
 
