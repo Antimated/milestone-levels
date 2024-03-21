@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.0.4
+- Fix issue where notifications got cleared when a loading screen would occur.
+
 ## v1.0.3
 - Removed setting to enable multi-levels, this is now default behaviour.
 - Added support for virtual levels
