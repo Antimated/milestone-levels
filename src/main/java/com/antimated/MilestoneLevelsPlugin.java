@@ -79,9 +79,20 @@ public class MilestoneLevelsPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onGameStateChanged(GameStateChanged event)
+	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
-		previousXpMap.clear();
+		// Clear previous XP when not logged in
+		switch (gameStateChanged.getGameState())
+		{
+			case HOPPING:
+			case LOGGING_IN:
+			case LOGIN_SCREEN:
+			case LOGIN_SCREEN_AUTHENTICATOR:
+			case CONNECTION_LOST:
+				previousXpMap.clear();
+				break;
+		}
+
 	}
 
 	@Subscribe
