@@ -17,6 +17,7 @@ import net.runelite.api.Experience;
 import net.runelite.api.GameState;
 import net.runelite.api.Skill;
 import net.runelite.api.events.CommandExecuted;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.StatChanged;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -76,7 +77,13 @@ public class MilestoneLevelsPlugin extends Plugin
 		previousXpMap.clear();
 		notifications.shutDown();
 	}
-	
+
+	@Subscribe
+	public void onGameStateChanged(GameStateChanged event)
+	{
+		previousXpMap.clear();
+	}
+
 	@Subscribe
 	public void onStatChanged(StatChanged statChanged)
 	{
