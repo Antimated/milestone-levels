@@ -1,7 +1,10 @@
 # Changelog
 
+## v1.0.5
+- Fixed an issue where notifications were showing up after hopping from a leagues world to a main world.
+
 ## v1.0.4
-- Fix issue where notifications got cleared when a loading screen would occur.
+- Fixed an issue where notifications got cleared when a loading screen would occur.
 
 ## v1.0.3
 - Removed setting to enable multi-levels, this is now default behaviour.

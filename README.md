@@ -3,8 +3,8 @@
 
 Gives you a way to get a fancy league-like notification whenever you level up!
 
-[![](https://img.shields.io/endpoint?url=https://i.pluginhub.info/shields/rank/plugin/milestone-levels)](https://runelite.net/plugin-hub/show/milestone-levels)
-[![](https://img.shields.io/endpoint?url=https://i.pluginhub.info/shields/installs/plugin/milestone-levels)](https://runelite.net/plugin-hub/show/milestone-levels)
+[![](https://img.shields.io/endpoint?url=https://api.runelite.net/pluginhub/shields/rank/plugin/milestone-levels)](https://runelite.net/plugin-hub/show/milestone-levels)
+[![](https://img.shields.io/endpoint?url=https://api.runelite.net/pluginhub/shields/installs/plugin/milestone-levels)](https://runelite.net/plugin-hub/show/milestone-levels)
 
 ## Features:
 
