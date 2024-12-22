@@ -76,7 +76,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		previousXpMap.clear();
 		notifications.shutDown();
 	}
-
+	
 	@Subscribe
 	public void onStatChanged(StatChanged statChanged)
 	{
@@ -97,7 +97,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		}
 
 		// Only standard worlds are allowed, and player shouldn't be in LMS
-		if (Util.isStandardWorld(client) || Util.isPlayerWithinMapRegion(client, LAST_MAN_STANDING_REGIONS))
+		if (!Util.isStandardWorld(client) || Util.isPlayerWithinMapRegion(client, LAST_MAN_STANDING_REGIONS))
 		{
 			log.debug("Not on a standard world or in a LMS game.");
 			return;

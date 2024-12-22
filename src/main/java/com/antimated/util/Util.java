@@ -85,7 +85,7 @@ public class Util
 
 	public static boolean isStandardWorld(Client client)
 	{
-		return RuneScapeProfileType.getCurrent(client) != RuneScapeProfileType.STANDARD;
+		return RuneScapeProfileType.getCurrent(client) == RuneScapeProfileType.STANDARD;
 	}
 
 	/**
