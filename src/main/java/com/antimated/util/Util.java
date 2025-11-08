@@ -94,6 +94,7 @@ public class Util
 	 */
 	public static boolean isPlayerWithinMapRegion(Client client, Set<Integer> definedMapRegions)
 	{
+		// final int[] mapRegions = client.getTopLevelWorldView().getMapRegions();
 		final int[] mapRegions = client.getLocalPlayer().getWorldView().getMapRegions();
 
 		for (int region : mapRegions)
