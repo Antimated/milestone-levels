@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Experience;
 import net.runelite.api.Skill;
+import net.runelite.api.WorldView;
 import net.runelite.client.config.RuneScapeProfileType;
 import net.runelite.client.util.Text;
 
@@ -93,7 +94,7 @@ public class Util
 	 */
 	public static boolean isPlayerWithinMapRegion(Client client, Set<Integer> definedMapRegions)
 	{
-		final int[] mapRegions = client.getMapRegions();
+		final int[] mapRegions = client.getTopLevelWorldView().getMapRegions();
 
 		for (int region : mapRegions)
 		{
