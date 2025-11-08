@@ -344,4 +344,15 @@ public interface MilestoneLevelsConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(
+		keyName = "showSailingNotifications",
+		name = "Sailing",
+		description = "Should we show Sailing notifications?",
+		section = skillsConfig
+	)
+	default boolean showSailingNotifications()
+	{
+		return true;
+	}
 }

@@ -16,6 +16,7 @@ import net.runelite.api.Client;
 import net.runelite.api.Experience;
 import net.runelite.api.GameState;
 import net.runelite.api.Skill;
+import net.runelite.api.WorldView;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.StatChanged;
@@ -263,6 +264,8 @@ public class MilestoneLevelsPlugin extends Plugin
 				return config.showHunterNotifications();
 			case CONSTRUCTION:
 				return config.showConstructionNotifications();
+			case SAILING:
+				return config.showSailingNotifications();
 		}
 
 		return true;
