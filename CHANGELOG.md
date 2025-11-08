@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.6
+- Added the Sailing skill
+- Removed deprecation warning
+
 ## v1.0.5
 - Fixed an issue where notifications were showing up after hopping from a leagues world to a main world.
 
