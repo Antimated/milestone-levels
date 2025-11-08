@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.GameState;
 import net.runelite.api.WidgetNode;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
