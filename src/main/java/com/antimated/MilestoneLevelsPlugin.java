@@ -108,8 +108,8 @@ public class MilestoneLevelsPlugin extends Plugin
 
 		previousXpMap.put(skill, currentXp);
 
-		// Previous level has to be set, and if we have leveled up
-		if (previousLevel == -1 || previousLevel >= currentLevel)
+		// Previous xp has to be set, and our current xp has to be higher or equal to the previous xp
+		if (previousXp == -1 || previousXp >= currentXp)
 		{
 			return;
 		}
@@ -126,7 +126,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		{
 			if (shouldNotifyForRealLevel(level) && shouldNotifyForSkill(skill))
 			{
-				notify(skill, level);
+				notifySkill(skill, level);
 				continue;
 			}
 
@@ -134,7 +134,7 @@ public class MilestoneLevelsPlugin extends Plugin
 			// regardless of the level list or enabled skills.
 			if (shouldNotifyForVirtualLevel(level))
 			{
-				notify(skill, level);
+				notifySkill(skill, level);
 			}
 		}
 	}
@@ -178,7 +178,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	 * @param skill Skill
 	 * @param level int
 	 */
-	private void notify(Skill skill, int level)
+	private void notifySkill(Skill skill, int level)
 	{
 		String title = Util.replaceSkillAndLevel(config.notificationTitle(), skill, level);
 		String text = Util.replaceSkillAndLevel(config.notificationText(), skill, level);
