@@ -7,21 +7,22 @@ import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
 import net.runelite.client.ui.JagexColors;
 
-@ConfigGroup("milestoneLevels")
+@ConfigGroup(MilestoneLevelsConfig.CONFIG_GROUP)
 public interface MilestoneLevelsConfig extends Config
 {
+	String CONFIG_GROUP = "milestoneLevels";
 	@ConfigSection(
-		name = "Notification",
-		description = "Contents to be shown on the level-up notification.",
-		position = 0
+		name = "Levels",
+		description = "All level notification settings.",
+		position = 100
 	)
-	String notificationConfig = "notificationConfig";
+	String SECTION_LEVELS = "levels";
 
 	@ConfigItem(
 		keyName = "notificationTitle",
 		name = "Title",
 		description = "Can include $level and $skill variables.",
-		section = notificationConfig,
+		section = SECTION_LEVELS,
 		position = 0
 	)
 	default String notificationTitle()
@@ -33,7 +34,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "notificationText",
 		name = "Text",
 		description = "Can include $level and $skill variables.",
-		section = notificationConfig,
+		section = SECTION_LEVELS,
 		position = 1
 	)
 	default String notificationText()
@@ -45,7 +46,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "notificationColor",
 		name = "Color",
 		description = "Changes the color of the notification title and text.",
-		section = notificationConfig,
+		section = SECTION_LEVELS,
 		position = 2
 	)
 	default Color notificationColor()
@@ -53,19 +54,12 @@ public interface MilestoneLevelsConfig extends Config
 		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
 	}
 
-	@ConfigSection(
-		name = "Levels",
-		description = "Settings for what levels we want to display notifications on",
-		position = 1
-	)
-	String levelsConfig = "levelsConfig";
-
 	@ConfigItem(
 		keyName = "showOnLevels",
 		name = "Levels",
 		description = "Configures levels to display notifications on, comma separated.",
-		section = levelsConfig,
-		position = 0
+		section = SECTION_LEVELS,
+		position = 3
 	)
 	default String showOnLevels()
 	{
@@ -76,8 +70,8 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showVirtualLevels",
 		name = "Notify for virtual levels",
 		description = "Notify when leveling a virtual level. Ignores the list of levels and skills.",
-		section = levelsConfig,
-		position = 1
+		section = SECTION_LEVELS,
+		position = 4
 	)
 	default boolean showVirtualLevels()
 	{
@@ -87,15 +81,15 @@ public interface MilestoneLevelsConfig extends Config
 	@ConfigSection(
 		name = "Skills",
 		description = "Settings for what skills we want to display notifications on",
-		position = 2
+		position = 200
 	)
-	String skillsConfig = "skillsConfig";
+	String SECTION_SKILLS = "skills";
 
 	@ConfigItem(
 		keyName = "showAttackNotifications",
 		name = "Attack",
 		description = "Should we show Attack notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showAttackNotifications()
 	{
@@ -106,7 +100,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showDefenceNotifications",
 		name = "Defence",
 		description = "Should we show Defence notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showDefenceNotifications()
 	{
@@ -117,7 +111,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showStrengthNotifications",
 		name = "Strength",
 		description = "Should we show Strength notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showStrengthNotifications()
 	{
@@ -128,7 +122,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showHitpointsNotifications",
 		name = "Hitpoints",
 		description = "Should we show Hitpoints notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showHitpointsNotifications()
 	{
@@ -139,7 +133,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showRangedNotifications",
 		name = "Ranged",
 		description = "Should we show Ranged notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showRangedNotifications()
 	{
@@ -150,7 +144,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showPrayerNotifications",
 		name = "Prayer",
 		description = "Should we show Prayer notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showPrayerNotifications()
 	{
@@ -161,7 +155,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showMagicNotifications",
 		name = "Magic",
 		description = "Should we show Magic notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showMagicNotifications()
 	{
@@ -172,7 +166,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showCookingNotifications",
 		name = "Cooking",
 		description = "Should we show Cooking notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showCookingNotifications()
 	{
@@ -183,7 +177,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showWoodcuttingNotifications",
 		name = "Woodcutting",
 		description = "Should we show Woodcutting notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showWoodcuttingNotifications()
 	{
@@ -194,7 +188,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showFletchingNotifications",
 		name = "Fletching",
 		description = "Should we show Fletching notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showFletchingNotifications()
 	{
@@ -205,7 +199,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showFishingNotifications",
 		name = "Fishing",
 		description = "Should we show Fishing notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showFishingNotifications()
 	{
@@ -216,7 +210,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showFiremakingNotifications",
 		name = "Firemaking",
 		description = "Should we show Firemaking notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showFiremakingNotifications()
 	{
@@ -228,7 +222,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showCraftingNotifications",
 		name = "Crafting",
 		description = "Should we show Crafting notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showCraftingNotifications()
 	{
@@ -239,7 +233,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showSmithingNotifications",
 		name = "Smithing",
 		description = "Should we show Smithing notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showSmithingNotifications()
 	{
@@ -250,7 +244,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showMiningNotifications",
 		name = "Mining",
 		description = "Should we show Mining notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showMiningNotifications()
 	{
@@ -261,7 +255,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showHerbloreNotifications",
 		name = "Herblore",
 		description = "Should we show Herblore notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showHerbloreNotifications()
 	{
@@ -272,7 +266,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showAgilityNotifications",
 		name = "Agility",
 		description = "Should we show Agility notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showAgilityNotifications()
 	{
@@ -283,7 +277,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showThievingNotifications",
 		name = "Thieving",
 		description = "Should we show Thieving notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showThievingNotifications()
 	{
@@ -294,7 +288,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showSlayerNotifications",
 		name = "Slayer",
 		description = "Should we show Slayer notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showSlayerNotifications()
 	{
@@ -305,7 +299,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showFarmingNotifications",
 		name = "Farming",
 		description = "Should we show Farming notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showFarmingNotifications()
 	{
@@ -316,7 +310,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showRunecraftNotifications",
 		name = "Runecraft",
 		description = "Should we show Runecraft notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showRunecraftNotifications()
 	{
@@ -327,7 +321,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showHunterNotifications",
 		name = "Hunter",
 		description = "Should we show Hunter notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showHunterNotifications()
 	{
@@ -338,7 +332,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showConstructionNotifications",
 		name = "Construction",
 		description = "Should we show Construction notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showConstructionNotifications()
 	{
@@ -349,7 +343,7 @@ public interface MilestoneLevelsConfig extends Config
 		keyName = "showSailingNotifications",
 		name = "Sailing",
 		description = "Should we show Sailing notifications?",
-		section = skillsConfig
+		section = SECTION_SKILLS
 	)
 	default boolean showSailingNotifications()
 	{
