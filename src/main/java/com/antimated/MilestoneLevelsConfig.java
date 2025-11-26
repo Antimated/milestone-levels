@@ -19,37 +19,37 @@ public interface MilestoneLevelsConfig extends Config
 	String SECTION_LEVELS = "levels";
 
 	@ConfigItem(
-		keyName = "notificationTitle",
+		keyName = "notificationLevelTitle",
 		name = "Title",
 		description = "Can include $level and $skill variables.",
 		section = SECTION_LEVELS,
 		position = 0
 	)
-	default String notificationTitle()
+	default String notificationLevelTitle()
 	{
 		return "Level milestone";
 	}
 
 	@ConfigItem(
-		keyName = "notificationText",
+		keyName = "notificationLevelText",
 		name = "Text",
 		description = "Can include $level and $skill variables.",
 		section = SECTION_LEVELS,
 		position = 1
 	)
-	default String notificationText()
+	default String notificationLevelText()
 	{
 		return "Gained level $level in $skill!";
 	}
 
 	@ConfigItem(
-		keyName = "notificationColor",
+		keyName = "notificationLevelColor",
 		name = "Color",
 		description = "Changes the color of the notification title and text.",
 		section = SECTION_LEVELS,
 		position = 2
 	)
-	default Color notificationColor()
+	default Color notificationLevelColor()
 	{
 		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
 	}

@@ -115,10 +115,10 @@ public class MilestoneLevelsPlugin extends Plugin
 			return;
 		}
 
-		// Only standard worlds are allowed, and player shouldn't be in LMS
+		// Only standard worlds are allowed, and if a player is in LMS, we should abort.
 		if (!Util.isStandardWorld(client) || Util.isPlayerWithinMapRegion(client, LAST_MAN_STANDING_REGIONS))
 		{
-			log.debug("Not on a standard world or in a LMS game.");
+			log.debug("Not on a standard world nor in LMS.");
 			return;
 		}
 
@@ -181,9 +181,9 @@ public class MilestoneLevelsPlugin extends Plugin
 	 */
 	private void notifySkill(Skill skill, int level)
 	{
-		String title = Util.replaceSkillAndLevel(config.notificationTitle(), skill, level);
-		String text = Util.replaceSkillAndLevel(config.notificationText(), skill, level);
-		int color = Util.getIntValue(config.notificationColor());
+		String title = Util.replaceSkillAndLevel(config.notificationLevelTitle(), skill, level);
+		String text = Util.replaceSkillAndLevel(config.notificationLevelText(), skill, level);
+		int color = Util.getIntValue(config.notificationLevelColor());
 
 		log.debug("Notify level up for {} to level {}", skill.getName(), level);
 		notifications.addNotification(title, text, color);
