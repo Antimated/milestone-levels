@@ -3,6 +3,7 @@ package com.antimated;
 import com.antimated.notifications.NotificationManager;
 import com.antimated.util.Util;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Ints;
 import com.google.inject.Provides;
 import java.util.EnumMap;
 import java.util.List;
@@ -190,6 +191,7 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	/**
 	 * Check if we should notify for the given potential real level
+	 *
 	 * @param level int
 	 * @return boolean
 	 */
@@ -200,6 +202,7 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	/**
 	 * Check if we should notify for the given potential virtual level
+	 *
 	 * @param level int
 	 * @return boolean
 	 */
@@ -210,6 +213,7 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	/**
 	 * Check if we should notify for the given skill based off of our config settings.
+	 *
 	 * @param skill Skill
 	 * @return boolean
 	 */
@@ -280,6 +284,36 @@ public class MilestoneLevelsPlugin extends Plugin
 			{
 				case "clear":
 					notifications.clearNotifications();
+					break;
+
+				case "setstats":
+					for (Skill skill : Skill.values())
+					{
+						int level = Integer.parseInt(args[0]);
+
+						if (skill == Skill.HITPOINTS && level < 10)
+						{
+							level = 10;
+						}
+
+
+						level = Ints.constrainToRange(level, 1, Experience.MAX_REAL_LEVEL);
+						int xp = Experience.getXpForLevel(level);
+
+						client.getBoostedSkillLevels()[skill.ordinal()] = level;
+						client.getRealSkillLevels()[skill.ordinal()] = level;
+						client.getSkillExperiences()[skill.ordinal()] = xp;
+
+						client.queueChangedSkill(skill);
+
+						StatChanged statChanged = new StatChanged(
+							skill,
+							xp,
+							level,
+							level
+						);
+						eventBus.post(statChanged);
+					}
 					break;
 			}
 		}
