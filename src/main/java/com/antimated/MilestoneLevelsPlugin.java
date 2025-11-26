@@ -195,7 +195,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	 */
 	private boolean shouldNotifyForRealLevel(int level)
 	{
-		return Util.isValidRealLevel(level) && (getLevelList().contains(level) || getLevelList().isEmpty());
+		return Util.isValidRealLevel(level) && getLevelList().contains(level);
 	}
 
 	/**
