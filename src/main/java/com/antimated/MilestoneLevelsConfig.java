@@ -63,7 +63,7 @@ public interface MilestoneLevelsConfig extends Config
 	@ConfigItem(
 		keyName = "showOnLevels",
 		name = "Levels",
-		description = "Configures levels to display notifications on. Format: (Level), (Level). When empty it displays notifications for all levels.",
+		description = "Configures levels to display notifications on, comma separated.",
 		section = levelsConfig,
 		position = 0
 	)
