@@ -78,10 +78,66 @@ public interface MilestoneLevelsConfig extends Config
 		return true;
 	}
 
+
+	@ConfigSection(
+		name = "Experience",
+		description = "All experience notification settings.",
+		position = 200
+	)
+	String SECTION_EXPERIENCE = "experience";
+
+	@ConfigItem(
+		keyName = "notificationExperienceTitle",
+		name = "Title",
+		description = "Can include $experience and $skill variables.",
+		section = SECTION_EXPERIENCE,
+		position = 0
+	)
+	default String notificationExperienceTitle()
+	{
+		return "XP milestone";
+	}
+
+	@ConfigItem(
+		keyName = "notificationExperienceText",
+		name = "Text",
+		description = "Can include $experience and $skill variables.",
+		section = SECTION_EXPERIENCE,
+		position = 1
+	)
+	default String notificationExperienceText()
+	{
+		return "Achieved $experience $skill experience!";
+	}
+
+	@ConfigItem(
+		keyName = "notificationExperienceColor",
+		name = "Color",
+		description = "Changes the color of the notification title and text.",
+		section = SECTION_EXPERIENCE,
+		position = 2
+	)
+	default Color notificationExperienceColor()
+	{
+		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
+	}
+
+	@ConfigItem(
+		keyName = "showOnExperience",
+		name = "Experience",
+		description = "Configures xp to display notifications on, comma separated.",
+		section = SECTION_EXPERIENCE,
+		position = 3
+	)
+	default String showOnExperience()
+	{
+		return "1000000, 10000000, 100000000";
+	}
+
 	@ConfigSection(
 		name = "Skills",
 		description = "Settings for what skills we want to display notifications on",
-		position = 200
+		position = 300
 	)
 	String SECTION_SKILLS = "skills";
 

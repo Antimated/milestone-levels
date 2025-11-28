@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
@@ -122,36 +123,91 @@ public class MilestoneLevelsPlugin extends Plugin
 			return;
 		}
 
-		// Check for multi-leveling
-		for (int level = previousLevel + 1; level <= currentLevel; level++)
+		// Only notify on regular levels when the skill is enabled
+		if (shouldNotifyForSkill(skill))
 		{
-			if (shouldNotifyForRealLevel(level) && shouldNotifyForSkill(skill))
-			{
-				notifySkill(skill, level);
-				continue;
-			}
+			List<Integer> milestoneLevels = getMilestoneLevels(previousLevel, currentLevel);
 
-			// Valid virtual levels with the showVirtualLevels setting should always display
-			// regardless of the level list or enabled skills.
-			if (shouldNotifyForVirtualLevel(level))
+			for (int level : milestoneLevels)
 			{
-				notifySkill(skill, level);
+				notifyLevel(skill, level);
 			}
 		}
+
+		// Always notify for virtual levels
+		if (shouldNotifyVirtualLevels())
+		{
+			List<Integer> milestoneVirtualLevels = getMilestoneVirtualLevels(previousLevel, currentLevel);
+
+			for (int virtualLevel : milestoneVirtualLevels)
+			{
+				notifyLevel(skill, virtualLevel);
+			}
+		}
+
+		// Only notify on experience when the skill is enabled
+		if (shouldNotifyForSkill(skill))
+		{
+			List<Integer> milestoneExperience = getMilestoneExperience(previousXp, currentXp);
+
+			for (int xp : milestoneExperience)
+			{
+				notifyExperience(skill, xp);
+			}
+		}
+	}
+
+
+	/**
+	 * Gets list of xp values between two numbers
+	 *
+	 * @return List<Integer>
+	 */
+	private List<Integer> getMilestoneExperience(int previousXp, int currentXp)
+	{
+		return Text.fromCSV(config.showOnExperience()).stream()
+			.distinct()
+			.filter(Util::isInteger)
+			.map(Integer::parseInt)
+			.filter(Util::isValidExperience)
+			.filter(n -> n > previousXp && n <= currentXp)
+			.sorted()
+			.collect(Collectors.toList());
 	}
 
 	/**
 	 * Gets list of valid real levels from config
 	 *
+	 * @param previousLevel int
+	 * @param currentLevel  int
 	 * @return List<Integer>
 	 */
-	private List<Integer> getLevelList()
+	private List<Integer> getMilestoneLevels(int previousLevel, int currentLevel)
 	{
 		return Text.fromCSV(config.showOnLevels()).stream()
 			.distinct()
 			.filter(Util::isInteger)
 			.map(Integer::parseInt)
 			.filter(Util::isValidRealLevel)
+			.filter(n -> n > previousLevel && n <= currentLevel)
+			.sorted()
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Gets list of valid virtual levels
+	 *
+	 * @param previousLevel int
+	 * @param currentLevel  int
+	 * @return List<Integer>
+	 */
+	private List<Integer> getMilestoneVirtualLevels(int previousLevel, int currentLevel)
+	{
+		return IntStream
+			.rangeClosed(Experience.MAX_REAL_LEVEL, Experience.MAX_VIRT_LEVEL)
+			.boxed()
+			.filter(n -> n > previousLevel && n <= currentLevel)
+			.sorted()
 			.collect(Collectors.toList());
 	}
 
@@ -179,36 +235,40 @@ public class MilestoneLevelsPlugin extends Plugin
 	 * @param skill Skill
 	 * @param level int
 	 */
-	private void notifySkill(Skill skill, int level)
+	private void notifyLevel(Skill skill, int level)
 	{
 		String title = Util.replaceSkillAndLevel(config.notificationLevelTitle(), skill, level);
 		String text = Util.replaceSkillAndLevel(config.notificationLevelText(), skill, level);
 		int color = Util.getIntValue(config.notificationLevelColor());
 
-		log.debug("Notify level up for {} to level {}", skill.getName(), level);
+		log.debug("Notify {}up for {} to level {}", level > Experience.MAX_REAL_LEVEL ? "virtual level-" : "level-", skill.getName(), level);
 		notifications.addNotification(title, text, color);
 	}
 
 	/**
-	 * Check if we should notify for the given potential real level
+	 * Adds an experience notification to the queue if certain requirements are met.
 	 *
-	 * @param level int
-	 * @return boolean
+	 * @param skill      Skill
+	 * @param experience int
 	 */
-	private boolean shouldNotifyForRealLevel(int level)
+	private void notifyExperience(Skill skill, int experience)
 	{
-		return Util.isValidRealLevel(level) && getLevelList().contains(level);
+		String title = Util.replaceSkillAndExperience(config.notificationExperienceTitle(), skill, experience);
+		String text = Util.replaceSkillAndExperience(config.notificationExperienceText(), skill, experience);
+		int color = Util.getIntValue(config.notificationExperienceColor());
+
+		log.debug("Notify experience up for {} to experience {}", skill.getName(), experience);
+		notifications.addNotification(title, text, color);
 	}
 
 	/**
-	 * Check if we should notify for the given potential virtual level
+	 * Check if we should notify for virtual levels
 	 *
-	 * @param level int
 	 * @return boolean
 	 */
-	private boolean shouldNotifyForVirtualLevel(int level)
+	private boolean shouldNotifyVirtualLevels()
 	{
-		return Util.isValidVirtualLevel(level) && config.showVirtualLevels();
+		return config.showVirtualLevels();
 	}
 
 	/**

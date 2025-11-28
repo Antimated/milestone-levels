@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Experience;
 import net.runelite.api.Skill;
-import net.runelite.api.WorldView;
 import net.runelite.client.config.RuneScapeProfileType;
+import net.runelite.client.util.QuantityFormatter;
 import net.runelite.client.util.Text;
 
 @Slf4j
@@ -24,16 +24,18 @@ public class Util
 		return level >= 1 && level <= Experience.MAX_REAL_LEVEL;
 	}
 
+
 	/**
-	 * Checks if a level is a valid virtual level (> 99 and <= 126)
+	 * Checks if a number is a valid XP target (>= 1 and <= 200M)
 	 *
-	 * @param level int
+	 * @param experience int
 	 * @return boolean
 	 */
-	public static boolean isValidVirtualLevel(int level)
+	public static boolean isValidExperience(int experience)
 	{
-		return level > Experience.MAX_REAL_LEVEL && level <= Experience.MAX_VIRT_LEVEL;
+		return experience > 0 && experience <= Experience.MAX_SKILL_XP;
 	}
+
 
 	/**
 	 * @param string String
@@ -84,6 +86,21 @@ public class Util
 			.replaceAll("\\$level", Integer.toString(level)));
 	}
 
+	/**
+	 * Replaces the words $skill and $experience from the text to the passed skill and level respectively
+	 *
+	 * @param text       String
+	 * @param skill      Skill
+	 * @param experience int
+	 * @return String
+	 */
+	public static String replaceSkillAndExperience(String text, Skill skill, int experience)
+	{
+		return Text.removeTags(text
+			.replaceAll("\\$skill", skill.getName())
+			.replaceAll("\\$experience", QuantityFormatter.formatNumber(experience)));
+	}
+
 	public static boolean isStandardWorld(Client client)
 	{
 		return RuneScapeProfileType.getCurrent(client) == RuneScapeProfileType.STANDARD;
@@ -107,5 +124,4 @@ public class Util
 
 		return false;
 	}
-
 }
