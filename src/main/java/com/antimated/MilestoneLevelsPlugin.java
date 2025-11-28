@@ -58,8 +58,6 @@ public class MilestoneLevelsPlugin extends Plugin
 
 	private final Map<Skill, Integer> previousXpMap = new EnumMap<>(Skill.class);
 
-	private static final Set<Integer> LAST_MAN_STANDING_REGIONS = ImmutableSet.of(13658, 13659, 13660, 13914, 13915, 13916, 13918, 13919, 13920, 14174, 14175, 14176, 14430, 14431, 14432);
-
 	@Provides
 	MilestoneLevelsConfig provideConfig(ConfigManager configManager)
 	{
@@ -117,7 +115,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		}
 
 		// Only standard worlds are allowed, and if a player is in LMS, we should abort.
-		if (!Util.isStandardWorld(client) || Util.isPlayerWithinMapRegion(client, LAST_MAN_STANDING_REGIONS))
+		if (!Util.isStandardWorld(client) || Util.isInLMS(client))
 		{
 			log.debug("Not on a standard world nor in LMS.");
 			return;
@@ -377,7 +375,7 @@ public class MilestoneLevelsPlugin extends Plugin
 						);
 						eventBus.post(statChanged);
 					}
-					break;
+				break;
 			}
 		}
 	}

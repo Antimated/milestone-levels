@@ -1,7 +1,6 @@
 package com.antimated.util;
 
 import java.awt.Color;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Experience;
@@ -13,6 +12,7 @@ import net.runelite.client.util.Text;
 @Slf4j
 public class Util
 {
+	private static final int IN_LMS_VARBIT = 5314;
 	/**
 	 * Checks if a level is a valid real level (>= 1 and <= 99)
 	 *
@@ -106,22 +106,8 @@ public class Util
 		return RuneScapeProfileType.getCurrent(client) == RuneScapeProfileType.STANDARD;
 	}
 
-	/**
-	 * Is player currently within the provided map regions
-	 */
-	public static boolean isPlayerWithinMapRegion(Client client, Set<Integer> definedMapRegions)
+	public static boolean isInLMS(Client client)
 	{
-		// final int[] mapRegions = client.getTopLevelWorldView().getMapRegions();
-		final int[] mapRegions = client.getLocalPlayer().getWorldView().getMapRegions();
-
-		for (int region : mapRegions)
-		{
-			if (definedMapRegions.contains(region))
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return client.getVarbitValue(IN_LMS_VARBIT) == 1;
 	}
 }
