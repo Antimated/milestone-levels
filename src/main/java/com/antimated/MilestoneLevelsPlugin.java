@@ -127,6 +127,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		if (shouldNotifyForSkill(skill))
 		{
 			List<Integer> milestoneLevels = getMilestoneLevels(previousLevel, currentLevel);
+			log.debug("Milestone levels to notify for after {} check: {}", skill.getName(), milestoneLevels);
 
 			for (int level : milestoneLevels)
 			{
@@ -138,6 +139,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		if (shouldNotifyVirtualLevels())
 		{
 			List<Integer> milestoneVirtualLevels = getMilestoneVirtualLevels(previousLevel, currentLevel);
+			log.debug("Virtual milestone levels to notify for: {}", milestoneVirtualLevels);
 
 			for (int virtualLevel : milestoneVirtualLevels)
 			{
@@ -149,6 +151,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		if (shouldNotifyForSkill(skill))
 		{
 			List<Integer> milestoneExperience = getMilestoneExperience(previousXp, currentXp);
+			log.debug("Milestone experience to notify for after {} check: {}", skill.getName(), milestoneExperience);
 
 			for (int xp : milestoneExperience)
 			{
@@ -246,18 +249,18 @@ public class MilestoneLevelsPlugin extends Plugin
 	}
 
 	/**
-	 * Adds an experience notification to the queue if certain requirements are met.
+	 * Adds an xp notification to the queue if certain requirements are met.
 	 *
-	 * @param skill      Skill
-	 * @param experience int
+	 * @param skill Skill
+	 * @param xp int
 	 */
-	private void notifyExperience(Skill skill, int experience)
+	private void notifyExperience(Skill skill, int xp)
 	{
-		String title = Util.replaceSkillAndExperience(config.notificationExperienceTitle(), skill, experience);
-		String text = Util.replaceSkillAndExperience(config.notificationExperienceText(), skill, experience);
+		String title = Util.replaceSkillAndExperience(config.notificationExperienceTitle(), skill, xp);
+		String text = Util.replaceSkillAndExperience(config.notificationExperienceText(), skill, xp);
 		int color = Util.getIntValue(config.notificationExperienceColor());
 
-		log.debug("Notify experience up for {} to experience {}", skill.getName(), experience);
+		log.debug("Notify xp up for {} to xp {}", skill.getName(), xp);
 		notifications.addNotification(title, text, color);
 	}
 

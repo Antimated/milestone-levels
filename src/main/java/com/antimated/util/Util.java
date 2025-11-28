@@ -28,12 +28,12 @@ public class Util
 	/**
 	 * Checks if a number is a valid XP target (>= 1 and <= 200M)
 	 *
-	 * @param experience int
+	 * @param xp int
 	 * @return boolean
 	 */
-	public static boolean isValidExperience(int experience)
+	public static boolean isValidExperience(int xp)
 	{
-		return experience > 0 && experience <= Experience.MAX_SKILL_XP;
+		return xp > 0 && xp <= Experience.MAX_SKILL_XP;
 	}
 
 
@@ -81,24 +81,24 @@ public class Util
 	 */
 	public static String replaceSkillAndLevel(String text, Skill skill, int level)
 	{
-		return Text.removeTags(text
+		return Text.escapeJagex(text
 			.replaceAll("\\$skill", skill.getName())
 			.replaceAll("\\$level", Integer.toString(level)));
 	}
 
 	/**
-	 * Replaces the words $skill and $experience from the text to the passed skill and level respectively
+	 * Replaces the words $skill and $xp from the text to the passed skill and level respectively
 	 *
 	 * @param text       String
 	 * @param skill      Skill
-	 * @param experience int
+	 * @param xp int
 	 * @return String
 	 */
-	public static String replaceSkillAndExperience(String text, Skill skill, int experience)
+	public static String replaceSkillAndExperience(String text, Skill skill, int xp)
 	{
-		return Text.removeTags(text
+		return Text.escapeJagex(text
 			.replaceAll("\\$skill", skill.getName())
-			.replaceAll("\\$experience", QuantityFormatter.formatNumber(experience)));
+			.replaceAll("\\$xp", QuantityFormatter.formatNumber(xp)));
 	}
 
 	public static boolean isStandardWorld(Client client)

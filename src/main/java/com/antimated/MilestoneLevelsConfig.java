@@ -19,11 +19,23 @@ public interface MilestoneLevelsConfig extends Config
 	String SECTION_LEVELS = "levels";
 
 	@ConfigItem(
+		keyName = "notificationLevelColor",
+		name = "Color",
+		description = "Changes the color of the notification title and text.",
+		section = SECTION_LEVELS,
+		position = 0
+	)
+	default Color notificationLevelColor()
+	{
+		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
+	}
+
+	@ConfigItem(
 		keyName = "notificationLevelTitle",
 		name = "Title",
 		description = "Can include $level and $skill variables.",
 		section = SECTION_LEVELS,
-		position = 0
+		position = 1
 	)
 	default String notificationLevelTitle()
 	{
@@ -35,23 +47,11 @@ public interface MilestoneLevelsConfig extends Config
 		name = "Text",
 		description = "Can include $level and $skill variables.",
 		section = SECTION_LEVELS,
-		position = 1
+		position = 2
 	)
 	default String notificationLevelText()
 	{
 		return "Gained level $level in $skill!";
-	}
-
-	@ConfigItem(
-		keyName = "notificationLevelColor",
-		name = "Color",
-		description = "Changes the color of the notification title and text.",
-		section = SECTION_LEVELS,
-		position = 2
-	)
-	default Color notificationLevelColor()
-	{
-		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
 	}
 
 	@ConfigItem(
@@ -78,20 +78,31 @@ public interface MilestoneLevelsConfig extends Config
 		return true;
 	}
 
-
 	@ConfigSection(
 		name = "Experience",
-		description = "All experience notification settings.",
+		description = "All xp notification settings.",
 		position = 200
 	)
 	String SECTION_EXPERIENCE = "experience";
+
+	@ConfigItem(
+		keyName = "notificationExperienceColor",
+		name = "Color",
+		description = "Changes the color of the notification title and text.",
+		section = SECTION_EXPERIENCE,
+		position = 0
+	)
+	default Color notificationExperienceColor()
+	{
+		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
+	}
 
 	@ConfigItem(
 		keyName = "notificationExperienceTitle",
 		name = "Title",
 		description = "Can include $experience and $skill variables.",
 		section = SECTION_EXPERIENCE,
-		position = 0
+		position = 1
 	)
 	default String notificationExperienceTitle()
 	{
@@ -101,25 +112,13 @@ public interface MilestoneLevelsConfig extends Config
 	@ConfigItem(
 		keyName = "notificationExperienceText",
 		name = "Text",
-		description = "Can include $experience and $skill variables.",
-		section = SECTION_EXPERIENCE,
-		position = 1
-	)
-	default String notificationExperienceText()
-	{
-		return "Achieved $experience $skill experience!";
-	}
-
-	@ConfigItem(
-		keyName = "notificationExperienceColor",
-		name = "Color",
-		description = "Changes the color of the notification title and text.",
+		description = "Can include $xp and $skill variables.",
 		section = SECTION_EXPERIENCE,
 		position = 2
 	)
-	default Color notificationExperienceColor()
+	default String notificationExperienceText()
 	{
-		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
+		return "Achieved $xp \nXP in $skill!";
 	}
 
 	@ConfigItem(
