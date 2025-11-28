@@ -2,13 +2,12 @@ package com.antimated;
 
 import com.antimated.notifications.NotificationManager;
 import com.antimated.util.Util;
-import com.google.common.collect.ImmutableSet;
+import com.antimated.version.VersionManager;
 import com.google.common.primitives.Ints;
 import com.google.inject.Provides;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.inject.Inject;
@@ -53,6 +52,9 @@ public class MilestoneLevelsPlugin extends Plugin
 	private NotificationManager notifications;
 
 	@Inject
+	private VersionManager version;
+
+	@Inject
 	@Named("developerMode")
 	boolean developerMode;
 
@@ -68,6 +70,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	protected void startUp()
 	{
 		clientThread.invoke(this::initializePreviousXpMap);
+		version.startUp();
 		notifications.startUp();
 	}
 
@@ -75,6 +78,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	protected void shutDown()
 	{
 		previousXpMap.clear();
+		version.shutDown();
 		notifications.shutDown();
 	}
 
@@ -345,6 +349,7 @@ public class MilestoneLevelsPlugin extends Plugin
 			{
 				case "clear":
 					notifications.clearNotifications();
+					version.clearLastUpdateMessage();
 					break;
 
 				case "setstats":
