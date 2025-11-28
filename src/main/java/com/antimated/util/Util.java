@@ -13,6 +13,7 @@ import net.runelite.client.util.Text;
 public class Util
 {
 	private static final int IN_LMS_VARBIT = 5314;
+
 	/**
 	 * Checks if a level is a valid real level (>= 1 and <= 99)
 	 *
@@ -89,9 +90,9 @@ public class Util
 	/**
 	 * Replaces the words $skill and $xp from the text to the passed skill and level respectively
 	 *
-	 * @param text       String
-	 * @param skill      Skill
-	 * @param xp int
+	 * @param text  String
+	 * @param skill Skill
+	 * @param xp    int
 	 * @return String
 	 */
 	public static String replaceSkillAndExperience(String text, Skill skill, int xp)

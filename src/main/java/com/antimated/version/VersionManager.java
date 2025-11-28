@@ -24,9 +24,9 @@ public class VersionManager
 	@Inject
 	private ConfigManager configManager;
 
-	private final String LAST_UPDATE_MESSAGE_KEY = "lastupdatemessage";
+	private final String LAST_UPDATE_MESSAGE_KEY = "lastUpdateMessage";
 
-	private final String UPDATE_MESSAGE = "Milestone Levels v1.1.0 is here. Enjoy the XP milestones!";
+	private final String UPDATE_MESSAGE = "Milestone Levels v1.1.0 is here. Enjoy the new XP milestones!";
 
 	public void startUp()
 	{
@@ -48,13 +48,10 @@ public class VersionManager
 			case LOGGED_IN:
 				if (hasLastUpdateMessage())
 				{
-					log.debug("Has last update message {}", getLastUpdateMessage());
 					return;
 				}
 
-				log.debug("Previous update message {}", getLastUpdateMessage());
 				setLastUpdateMessage();
-				log.debug("Last updated message {}", getLastUpdateMessage());
 
 				chatMessageManager.queue(QueuedMessage.builder()
 					.type(ChatMessageType.GAMEMESSAGE)
@@ -85,5 +82,4 @@ public class VersionManager
 	{
 		return getLastUpdateMessage() != null && getLastUpdateMessage().equals(UPDATE_MESSAGE);
 	}
-
 }

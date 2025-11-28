@@ -26,13 +26,14 @@ import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.util.QuantityFormatter;
 import net.runelite.client.util.Text;
 
 @Slf4j
 @PluginDescriptor(
 	name = "Milestone Levels",
 	description = "Display milestone levels on a fancy league-like notification",
-	tags = {"level", "skill", "notification", "notifier", "milestone"}
+	tags = {"level", "skill", "xp", "experience", "notification", "notifier", "milestone"}
 )
 public class MilestoneLevelsPlugin extends Plugin
 {
@@ -70,16 +71,16 @@ public class MilestoneLevelsPlugin extends Plugin
 	protected void startUp()
 	{
 		clientThread.invoke(this::initializePreviousXpMap);
-		version.startUp();
 		notifications.startUp();
+		version.startUp();
 	}
 
 	@Override
 	protected void shutDown()
 	{
 		previousXpMap.clear();
-		version.shutDown();
 		notifications.shutDown();
+		version.shutDown();
 	}
 
 	@Subscribe
@@ -126,9 +127,10 @@ public class MilestoneLevelsPlugin extends Plugin
 		}
 
 		// Only notify on regular levels when the skill is enabled
-		if (shouldNotifyForSkill(skill))
+		final List<Integer> milestoneLevels = getMilestoneLevels(previousLevel, currentLevel);
+
+		if (shouldNotifyForSkill(skill) && !milestoneLevels.isEmpty())
 		{
-			List<Integer> milestoneLevels = getMilestoneLevels(previousLevel, currentLevel);
 			log.debug("Milestone levels to notify for after {} check: {}", skill.getName(), milestoneLevels);
 
 			for (int level : milestoneLevels)
@@ -138,9 +140,10 @@ public class MilestoneLevelsPlugin extends Plugin
 		}
 
 		// Always notify for virtual levels
-		if (shouldNotifyVirtualLevels())
+		final List<Integer> milestoneVirtualLevels = getMilestoneVirtualLevels(previousLevel, currentLevel);
+
+		if (shouldNotifyVirtualLevels() && !milestoneVirtualLevels.isEmpty())
 		{
-			List<Integer> milestoneVirtualLevels = getMilestoneVirtualLevels(previousLevel, currentLevel);
 			log.debug("Virtual milestone levels to notify for: {}", milestoneVirtualLevels);
 
 			for (int virtualLevel : milestoneVirtualLevels)
@@ -150,9 +153,10 @@ public class MilestoneLevelsPlugin extends Plugin
 		}
 
 		// Only notify on experience when the skill is enabled
-		if (shouldNotifyForSkill(skill))
+		final List<Integer> milestoneExperience = getMilestoneExperience(previousXp, currentXp);
+
+		if (shouldNotifyForSkill(skill) && !milestoneExperience.isEmpty())
 		{
-			List<Integer> milestoneExperience = getMilestoneExperience(previousXp, currentXp);
 			log.debug("Milestone experience to notify for after {} check: {}", skill.getName(), milestoneExperience);
 
 			for (int xp : milestoneExperience)
@@ -161,7 +165,6 @@ public class MilestoneLevelsPlugin extends Plugin
 			}
 		}
 	}
-
 
 	/**
 	 * Gets list of xp values between two numbers
@@ -209,7 +212,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	private List<Integer> getMilestoneVirtualLevels(int previousLevel, int currentLevel)
 	{
 		return IntStream
-			.rangeClosed(Experience.MAX_REAL_LEVEL, Experience.MAX_VIRT_LEVEL)
+			.rangeClosed(Experience.MAX_REAL_LEVEL + 1, Experience.MAX_VIRT_LEVEL)
 			.boxed()
 			.filter(n -> n > previousLevel && n <= currentLevel)
 			.sorted()
@@ -246,7 +249,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		String text = Util.replaceSkillAndLevel(config.notificationLevelText(), skill, level);
 		int color = Util.getIntValue(config.notificationLevelColor());
 
-		log.debug("Notify {}up for {} to level {}", level > Experience.MAX_REAL_LEVEL ? "virtual level-" : "level-", skill.getName(), level);
+		log.debug("Notify {}up milestone reached for {} to level {}", level > Experience.MAX_REAL_LEVEL ? "virtual level-" : "level-", skill.getName(), level);
 		notifications.addNotification(title, text, color);
 	}
 
@@ -254,7 +257,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	 * Adds an xp notification to the queue if certain requirements are met.
 	 *
 	 * @param skill Skill
-	 * @param xp int
+	 * @param xp    int
 	 */
 	private void notifyExperience(Skill skill, int xp)
 	{
@@ -262,7 +265,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		String text = Util.replaceSkillAndExperience(config.notificationExperienceText(), skill, xp);
 		int color = Util.getIntValue(config.notificationExperienceColor());
 
-		log.debug("Notify xp up for {} to xp {}", skill.getName(), xp);
+		log.debug("Notify xp milestone reached for {} to xp {}", skill.getName(), QuantityFormatter.formatNumber(xp));
 		notifications.addNotification(title, text, color);
 	}
 
@@ -349,6 +352,9 @@ public class MilestoneLevelsPlugin extends Plugin
 			{
 				case "clear":
 					notifications.clearNotifications();
+					break;
+
+				case "clearversion":
 					version.clearLastUpdateMessage();
 					break;
 
@@ -380,7 +386,7 @@ public class MilestoneLevelsPlugin extends Plugin
 						);
 						eventBus.post(statChanged);
 					}
-				break;
+					break;
 			}
 		}
 	}

@@ -69,7 +69,7 @@ public interface MilestoneLevelsConfig extends Config
 	@ConfigItem(
 		keyName = "showVirtualLevels",
 		name = "Notify for virtual levels",
-		description = "Notify when leveling a virtual level. Ignores the list of levels and skills.",
+		description = "Notify when leveling a virtual level. Ignores the list of skills.",
 		section = SECTION_LEVELS,
 		position = 4
 	)
@@ -100,7 +100,7 @@ public interface MilestoneLevelsConfig extends Config
 	@ConfigItem(
 		keyName = "notificationExperienceTitle",
 		name = "Title",
-		description = "Can include $experience and $skill variables.",
+		description = "Can include $xp and $skill variables.",
 		section = SECTION_EXPERIENCE,
 		position = 1
 	)
@@ -130,7 +130,7 @@ public interface MilestoneLevelsConfig extends Config
 	)
 	default String showOnExperience()
 	{
-		return "1000000, 10000000, 100000000";
+		return "1000000, 5000000, 10000000, 15000000, 20000000, 25000000, 30000000, 35000000, 40000000, 45000000, 50000000, 55000000, 60000000, 65000000, 70000000, 75000000, 80000000, 85000000, 90000000, 95000000, 100000000, 125000000, 150000000, 200000000";
 	}
 
 	@ConfigSection(

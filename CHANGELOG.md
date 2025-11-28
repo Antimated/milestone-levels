@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.0
+- Added XP milestones
+- Added a "version manager" which displays a chatbox message with plugin update information (heavily inspired by [how @Zoinkwiz' does this in the quest helper](https://github.com/Zoinkwiz/quest-helper/blob/master/src/main/java/com/questhelper/managers/NewVersionManager.java))
+- Refactored code to make XP milestones possible
+
 ## v1.0.6
 - Added the Sailing skill
 - Removed deprecation warning
