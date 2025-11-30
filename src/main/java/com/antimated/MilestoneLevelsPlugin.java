@@ -56,6 +56,9 @@ public class MilestoneLevelsPlugin extends Plugin
 	private VersionManager version;
 
 	@Inject
+	private ConfigManager configManager;
+
+	@Inject
 	@Named("developerMode")
 	boolean developerMode;
 
@@ -73,6 +76,7 @@ public class MilestoneLevelsPlugin extends Plugin
 		clientThread.invoke(this::initializePreviousXpMap);
 		notifications.startUp();
 		version.startUp();
+		migrate();
 	}
 
 	@Override
@@ -340,6 +344,42 @@ public class MilestoneLevelsPlugin extends Plugin
 		}
 
 		return true;
+	}
+
+	public void migrate()
+	{
+		String migrated = configManager.getConfiguration(MilestoneLevelsConfig.CONFIG_GROUP, "migrated");
+
+		if (migrated != null)
+		{
+			return;
+		}
+
+		log.debug("Start config key migration...");
+
+		Map<String, String> configMapping = Map.of(
+			"notificationColor", "notificationLevelColor",
+			"notificationText", "notificationLevelText",
+			"notificationTitle", "notificationLevelTitle"
+		);
+
+		for (Map.Entry<String, String> entry : configMapping.entrySet())
+		{
+			String oldKey = entry.getKey();
+			String newKey = entry.getValue();
+			String oldValue = configManager.getConfiguration(MilestoneLevelsConfig.CONFIG_GROUP, oldKey);
+
+			log.debug("Old key {} with value {}", oldKey, oldValue);
+
+			if (oldValue != null)
+			{
+				configManager.setConfiguration(MilestoneLevelsConfig.CONFIG_GROUP, newKey, oldValue);
+				configManager.unsetConfiguration(MilestoneLevelsConfig.CONFIG_GROUP, oldKey);
+			}
+		}
+
+		log.debug("End migration of notification keys to notification level keys");
+		configManager.setConfiguration(MilestoneLevelsConfig.CONFIG_GROUP, "migrated", "1");
 	}
 
 	@Subscribe
