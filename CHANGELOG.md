@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.1.1
+- Added migration to copy old settings to new settings
+
 ## v1.1.0
 - Added XP milestones
 - Added a "version manager" which displays a chatbox message with plugin update information (heavily inspired by [how @Zoinkwiz' does this in the quest helper](https://github.com/Zoinkwiz/quest-helper/blob/master/src/main/java/com/questhelper/managers/NewVersionManager.java))
